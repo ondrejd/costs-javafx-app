@@ -9,6 +9,7 @@ package ondrejd;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.function.Function;
+import java.util.prefs.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
@@ -30,8 +31,12 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.StringConverter;
 
 public class CostsController implements Initializable {
+    private static final String SELECTED_MONTH = "selected_month";
+    private static final Integer SELECTED_MONTH_DEFAULT = 0;
+
     private ObservableList<CostDataRow> data;
     private FilteredList<CostDataRow> filteredData;
+    private Preferences prefs;
     
     @FXML
     private ComboBox monthsComboBox;
@@ -180,8 +185,16 @@ public class CostsController implements Initializable {
      * Save data to XML file - called from {@link ondrejd.Costs}.
      */
     public void saveData() {
-        System.out.println("Test!");
+        // Save data
         XmlDataSource.saveXml(data, getCurrentYear());
+        // Save user preferences
+        try {
+            prefs.putInt(SELECTED_MONTH, getSelectedMonthIndex());
+            prefs.flush();
+        } catch(BackingStoreException e) {
+            e.printStackTrace();
+            System.out.print("Exception occured when saving user preferences!");
+        }
     }
     
     /**
@@ -372,6 +385,9 @@ public class CostsController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        // Initialize user preferences
+        prefs = Preferences.userNodeForPackage(ondrejd.CostsController.class);
+
         // Set up months combobox
         ObservableList<String> months = FXCollections.observableArrayList(
                 "Leden", "Únor", "Březen", "Duben", "Květen", "Červen", "Červenec",
@@ -381,6 +397,10 @@ public class CostsController implements Initializable {
         
         // Load data
         data = XmlDataSource.loadData(getCurrentYear());
+        
+        // Set month which was selected when application was running last time
+        int selMonth = prefs.getInt(SELECTED_MONTH, SELECTED_MONTH_DEFAULT);
+        monthsComboBox.getSelectionModel().select(selMonth);
         
         // Set up constants
         setConstants();
