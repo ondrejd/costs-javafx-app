@@ -1,3 +1,9 @@
+/**
+ * @author Ondřej Doněk <ondrejd@gmail.com>
+ * @link https://github.com/ondrejd/costs-javafx-app for the canonical source repository
+ * @license https://www.gnu.org/licenses/gpl-3.0.en.html GNU General Public License 3.0
+ */
+
 package ondrejd;
 
 import javafx.beans.property.ObjectProperty;
@@ -190,16 +196,9 @@ public class CostDataRow {
     }
     
     public final ColoredValue<Integer> getTotalCosts() {
-        ColoredValue.ColorType c = totalCostsProperty().get().getColor();
-        int tc = getWorkPrice().getValue() + getWirePrice().getValue() +
-                getPourPrice().getValue() + getPaintPrice().getValue() +
-                getSheetPrice().getValue() + getConcretePrice().getValue() +
-                getPumpPrice().getValue() + getSquarePrice().getValue();
-        
-        return new ColoredValue<>(tc, c);
+        return this.totalCostsProperty().get();
     }
     
-    // TODO This is maybe redundant.
     public final void setTotalCosts(final ColoredValue<Integer> totalCosts) {
         this.totalCostsProperty().set(totalCosts);
     }
@@ -223,19 +222,9 @@ public class CostDataRow {
     }
     
     public final ColoredValue<Integer> getGain() {
-        ColoredValue.ColorType c = gainProperty().get().getColor();
-        int tc = getTotalCosts().getValue();
-        int bp = getBillPrice().getValue();
-        int g  = bp - tc;
-        
-        if(bp == 0) {
-            return new ColoredValue<>(0, c);
-        }
-        
-        return new ColoredValue<>(bp, c);
+        return this.gainProperty().get();
     }
     
-    // TODO This is maybe redundant.
     public final void setGain(final ColoredValue<Integer> gain) {
         this.gainProperty().set(gain);
     }
@@ -246,19 +235,9 @@ public class CostDataRow {
     }
     
     public final ColoredValue<Integer> getProfitMargin() {
-        ColoredValue.ColorType c = profitMarginProperty().get().getColor();
-        int tc = getTotalCosts().getValue();
-        int g  = getGain().getValue();
-        int pm = (int)(g / (tc / 100));
-        
-        if(tc == 0) {
-            return new ColoredValue<>(0, c);
-        }
-        
-        return new ColoredValue<>(pm, c);
+        return this.profitMarginProperty().get();
     }
     
-    // TODO This is maybe redundant.
     public final void setProfitMargin(final ColoredValue<Integer> profitMargin) {
         this.profitMarginProperty().set(profitMargin);
     }

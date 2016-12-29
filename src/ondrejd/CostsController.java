@@ -1,13 +1,15 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * @author Ondřej Doněk <ondrejd@gmail.com>
+ * @link https://github.com/ondrejd/costs-javafx-app for the canonical source repository
+ * @license https://www.gnu.org/licenses/gpl-3.0.en.html GNU General Public License 3.0
  */
+
 package ondrejd;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.function.Function;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
@@ -32,10 +34,6 @@ import javafx.scene.paint.Color;
 import javafx.util.StringConverter;
 import javafx.util.converter.IntegerStringConverter;
 
-/**
- *
- * @author ondrejd
- */
 public class CostsController implements Initializable {
     
     protected static ObservableList<CostDataRow> data = FXCollections.<CostDataRow>observableArrayList(
@@ -63,35 +61,35 @@ public class CostsController implements Initializable {
     @FXML
     private TableView<CostDataRow> table;
     @FXML
-    private TableColumn/*<FormTokens, String>*/ placeTCol;
+    private TableColumn<CostDataRow, ColoredValue<String>> placeTCol;
     @FXML
-    private TableColumn surfaceTCol;
+    private TableColumn<CostDataRow, ColoredValue<Integer>> surfaceTCol;
     @FXML
-    private TableColumn workPriceTCol;
+    private TableColumn<CostDataRow, ColoredValue<Integer>> workPriceTCol;
     @FXML
-    private TableColumn wireWeightTCol;
+    private TableColumn<CostDataRow, ColoredValue<Integer>> wireWeightTCol;
     @FXML
-    private TableColumn wirePriceTCol;
+    private TableColumn<CostDataRow, ColoredValue<Integer>> wirePriceTCol;
     @FXML
-    private TableColumn pourPriceTCol;
+    private TableColumn<CostDataRow, ColoredValue<Integer>> pourPriceTCol;
     @FXML
-    private TableColumn paintPriceTCol;
+    private TableColumn<CostDataRow, ColoredValue<Integer>> paintPriceTCol;
     @FXML
-    private TableColumn sheetPriceTCol;
+    private TableColumn<CostDataRow, ColoredValue<Integer>> sheetPriceTCol;
     @FXML
-    private TableColumn concretePriceTCol;
+    private TableColumn<CostDataRow, ColoredValue<Integer>> concretePriceTCol;
     @FXML
-    private TableColumn pumpPriceTCol;
+    private TableColumn<CostDataRow, ColoredValue<Integer>> pumpPriceTCol;
     @FXML
-    private TableColumn squarePriceTCol;
+    private TableColumn<CostDataRow, ColoredValue<Integer>> squarePriceTCol;
     @FXML
-    private TableColumn totalCostsTCol;
+    private TableColumn<CostDataRow, ColoredValue<Integer>> totalCostsTCol;
     @FXML
-    private TableColumn billPriceTCol;
+    private TableColumn<CostDataRow, ColoredValue<Integer>> billPriceTCol;
     @FXML
-    private TableColumn gainTCol;
+    private TableColumn<CostDataRow, ColoredValue<Integer>> gainTCol;
     @FXML
-    private TableColumn profitMarginTCol;
+    private TableColumn<CostDataRow, ColoredValue<Integer>> profitMarginTCol;
     
     @FXML
     private void handleAddRowButtonAction(ActionEvent event) {
@@ -103,17 +101,78 @@ public class CostsController implements Initializable {
     
     @FXML
     private void handleYellowButtonAction(ActionEvent event) {
-        System.out.println("You clicked me - YELLOW!");
-        table.getSelectionModel().getSelectedCells().forEach(pos -> {
-            //int row = pos.getRow();
-            //int col = pos.getColumn();
-            //pos.setStyle("-fx-background-color: yellow");
+        table.getSelectionModel().getSelectedCells().forEach((pos) -> {
+            CostDataRow cdr = table.getItems().get(pos.getRow());
+            if (pos.getTableColumn() == placeTCol) {
+                cdr.getPlace().setColor(ColoredValue.ColorType.YELLOW);
+            } else if (pos.getTableColumn() == surfaceTCol) {
+                cdr.getSurface().setColor(ColoredValue.ColorType.YELLOW);
+            } else if (pos.getTableColumn() == workPriceTCol) {
+                cdr.getWorkPrice().setColor(ColoredValue.ColorType.YELLOW);
+            } else if (pos.getTableColumn() == wireWeightTCol) {
+                cdr.getWireWeight().setColor(ColoredValue.ColorType.YELLOW);
+            } else if (pos.getTableColumn() == wirePriceTCol) {
+                cdr.getWirePrice().setColor(ColoredValue.ColorType.YELLOW);
+            } else if (pos.getTableColumn() == pourPriceTCol) {
+                cdr.getPourPrice().setColor(ColoredValue.ColorType.YELLOW);
+            } else if (pos.getTableColumn() == paintPriceTCol) {
+                cdr.getPaintPrice().setColor(ColoredValue.ColorType.YELLOW);
+            } else if (pos.getTableColumn() == sheetPriceTCol) {
+                cdr.getSheetPrice().setColor(ColoredValue.ColorType.YELLOW);
+            } else if (pos.getTableColumn() == concretePriceTCol) {
+                cdr.getConcretePrice().setColor(ColoredValue.ColorType.YELLOW);
+            } else if (pos.getTableColumn() == pumpPriceTCol) {
+                cdr.getPumpPrice().setColor(ColoredValue.ColorType.YELLOW);
+            } else if (pos.getTableColumn() == squarePriceTCol) {
+                cdr.getSquarePrice().setColor(ColoredValue.ColorType.YELLOW);
+            } else if (pos.getTableColumn() == totalCostsTCol) {
+                cdr.getTotalCosts().setColor(ColoredValue.ColorType.YELLOW);
+            } else if (pos.getTableColumn() == billPriceTCol) {
+                cdr.getBillPrice().setColor(ColoredValue.ColorType.YELLOW);
+            } else if (pos.getTableColumn() == gainTCol) {
+                cdr.getGain().setColor(ColoredValue.ColorType.YELLOW);
+            } else if (pos.getTableColumn() == profitMarginTCol) {
+                cdr.getProfitMargin().setColor(ColoredValue.ColorType.YELLOW);
+            }
         });
     }
     
     @FXML
     private void handleRedButtonAction(ActionEvent event) {
-        System.out.println("You clicked me - RED!");
+        table.getSelectionModel().getSelectedCells().forEach((pos) -> {
+            CostDataRow cdr = table.getItems().get(pos.getRow());
+            if (pos.getTableColumn() == placeTCol) {
+                cdr.getPlace().setColor(ColoredValue.ColorType.RED);
+            } else if (pos.getTableColumn() == surfaceTCol) {
+                cdr.getSurface().setColor(ColoredValue.ColorType.RED);
+            } else if (pos.getTableColumn() == workPriceTCol) {
+                cdr.getWorkPrice().setColor(ColoredValue.ColorType.RED);
+            } else if (pos.getTableColumn() == wireWeightTCol) {
+                cdr.getWireWeight().setColor(ColoredValue.ColorType.RED);
+            } else if (pos.getTableColumn() == wirePriceTCol) {
+                cdr.getWirePrice().setColor(ColoredValue.ColorType.RED);
+            } else if (pos.getTableColumn() == pourPriceTCol) {
+                cdr.getPourPrice().setColor(ColoredValue.ColorType.RED);
+            } else if (pos.getTableColumn() == paintPriceTCol) {
+                cdr.getPaintPrice().setColor(ColoredValue.ColorType.RED);
+            } else if (pos.getTableColumn() == sheetPriceTCol) {
+                cdr.getSheetPrice().setColor(ColoredValue.ColorType.RED);
+            } else if (pos.getTableColumn() == concretePriceTCol) {
+                cdr.getConcretePrice().setColor(ColoredValue.ColorType.RED);
+            } else if (pos.getTableColumn() == pumpPriceTCol) {
+                cdr.getPumpPrice().setColor(ColoredValue.ColorType.RED);
+            } else if (pos.getTableColumn() == squarePriceTCol) {
+                cdr.getSquarePrice().setColor(ColoredValue.ColorType.RED);
+            } else if (pos.getTableColumn() == totalCostsTCol) {
+                cdr.getTotalCosts().setColor(ColoredValue.ColorType.RED);
+            } else if (pos.getTableColumn() == billPriceTCol) {
+                cdr.getBillPrice().setColor(ColoredValue.ColorType.RED);
+            } else if (pos.getTableColumn() == gainTCol) {
+                cdr.getGain().setColor(ColoredValue.ColorType.RED);
+            } else if (pos.getTableColumn() == profitMarginTCol) {
+                cdr.getProfitMargin().setColor(ColoredValue.ColorType.RED);
+            }
+        });
     }
     
     @FXML
@@ -201,8 +260,7 @@ public class CostsController implements Initializable {
                 cell.setStyle("-fx-background-color: red ;");
             }
         };
-
-
+        
         cell.itemProperty().addListener((obs, oldItem, newItem) -> {
             if (oldItem != null) {
                 oldItem.colorProperty().removeListener(valListener);
@@ -222,7 +280,42 @@ public class CostsController implements Initializable {
         });
 
         return cell ;
-    }    
+    }
+    
+    /**
+     * Update sum columns (total costs, gain, profit margin) in given table row.
+     * @param row Row where we need to update sum columns.
+     */
+    private void updateSumColumns(CostDataRow row) {
+        // Update total costs
+        ColoredValue.ColorType tcc = row.totalCostsProperty().get().getColor();
+        int tcv = row.getWorkPrice().getValue() + row.getWirePrice().getValue() +
+                row.getPourPrice().getValue() + row.getPaintPrice().getValue() +
+                row.getSheetPrice().getValue() + row.getConcretePrice().getValue() +
+                row.getPumpPrice().getValue() + row.getSquarePrice().getValue();
+        row.setTotalCosts(new ColoredValue<>(tcv, tcc));
+        
+        // Update gain
+        ColoredValue.ColorType gc = row.gainProperty().get().getColor();
+        int bp = row.getBillPrice().getValue();
+        int g  = 0;
+        
+        if (bp == 0) {
+            row.setGain(new ColoredValue<>(0, gc));
+        } else {
+            g = bp - tcv;
+            row.setGain(new ColoredValue<>(g, gc));
+        }
+        
+        // Update profit margin
+        ColoredValue.ColorType pmc = row.profitMarginProperty().get().getColor();
+        
+        if (tcv == 0 || g == 0) {
+            row.setProfitMargin(new ColoredValue<>(0, pmc));
+        } else {
+            row.setProfitMargin(new ColoredValue<>((int)(g / (tcv / 100)), pmc));
+        }
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -241,362 +334,205 @@ public class CostsController implements Initializable {
         table.setItems(filteredData);
 
         // Set up data table columns
-        placeTCol.setCellValueFactory(new PropertyValueFactory<>("place"));
-        placeTCol.setCellFactory(TextFieldTableCell.forTableColumn());
-        placeTCol.setOnEditCommit(
-            new EventHandler<CellEditEvent<CostDataRow, String>>() {
-                @Override
-                public void handle(CellEditEvent<CostDataRow, String> t) {
-                    ((CostDataRow) t.getTableView().getItems().get(
-                            t.getTablePosition().getRow())
-                            ).setPlace(t.getNewValue());
-                }
-            }
-        );
-        surfaceTCol.setCellValueFactory(new PropertyValueFactory<>("surface"));
-        surfaceTCol.setCellFactory(TextFieldTableCell.<CostDataRow, Integer>forTableColumn(new StringConverter<Integer>() {
-            @Override
-            public String toString(final Integer value) {
-                return value.toString() + " m2";
-            }
-            @Override
-            public Integer fromString(final String s) {
-                return Integer.parseInt(s.replace(" m2", ""));
-            }
-        }));
+        placeTCol.setCellValueFactory(cellData -> cellData.getValue().placeProperty());
+        placeTCol.setCellFactory(tc -> createTableCell("%s", String::new));
+        surfaceTCol.setCellValueFactory(cellData -> cellData.getValue().surfaceProperty());
+        surfaceTCol.setCellFactory(tc -> createTableCell("%,d m2", Integer::new));
         surfaceTCol.setOnEditCommit(
-            new EventHandler<CellEditEvent<CostDataRow, Integer>>() {
+            new EventHandler<CellEditEvent<CostDataRow, ColoredValue<Integer>>>() {
                 @Override
-                public void handle(CellEditEvent<CostDataRow, Integer> t) {
-                    CostDataRow row = (CostDataRow) t.getTableView().getItems().get(
-                            t.getTablePosition().getRow());
-                    int surface = t.getNewValue();
-                    row.setSurface(t.getNewValue());
+                public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
+                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(
+                            e.getTablePosition().getRow());
+                    row.setSurface(e.getNewValue());
+                    int s = e.getNewValue().getValue();
                     // Calculate work price
-                    row.setWorkPrice((int)(surface * getWorkPriceConstant()));
+                    ColoredValue.ColorType wpc = row.workPriceProperty().get().getColor();
+                    ColoredValue<Integer> wp = new ColoredValue<>((int)(s * getWorkPriceConstant()), wpc);
+                    row.setWorkPrice(wp);
                     // Calculate pour price
-                    row.setPourPrice((int)(surface * getPourPriceConstant()));
+                    ColoredValue.ColorType ppc = row.pourPriceProperty().get().getColor();
+                    ColoredValue<Integer> pp = new ColoredValue<>((int)(s * getPourPriceConstant()), ppc);
+                    row.setPourPrice(pp);
                     // Calculate paint price
-                    row.setPaintPrice((int)(surface * getPaintPriceConstant()));
+                    ColoredValue.ColorType papc = row.paintPriceProperty().get().getColor();
+                    ColoredValue<Integer> pap = new ColoredValue<>((int)(s * getPaintPriceConstant()), papc);
+                    row.setPaintPrice(pap);
                     // Calculate sheet price
-                    row.setSheetPrice((int)(surface * getSheetPriceConstant()));
-                    // TODO Update total costs, gain, profitMargin.
+                    ColoredValue.ColorType spc = row.sheetPriceProperty().get().getColor();
+                    ColoredValue<Integer> sp = new ColoredValue<>((int)(s * getSheetPriceConstant()), spc);
+                    row.setSheetPrice(sp);
+                    // Update total costs, gain, profitMargin.
+                    updateSumColumns(row);
                     // Refresh table view
-                    t.getTableView().refresh();
+                    e.getTableView().refresh();
                 }
             }
         );
-        workPriceTCol.setCellValueFactory(new PropertyValueFactory<>("workPrice"));
-        workPriceTCol.setCellFactory(tc -> {
-            TableCell<CostDataRow, ColoredValue<Integer>> cell = new TextFieldTableCell<>(new StringConverter<ColoredValue<Integer>>() {
-                @Override
-                public String toString(final ColoredValue<Integer> value) {
-                    return Integer.toString(value.getValue()) + " Kč";
-                }
-                @Override
-                public ColoredValue<Integer> fromString(final String s) {
-                    return new ColoredValue<>(new Integer(s));
-                }
-            });
-           ChangeListener<String> coloredValListener = (obs, oldVal, newVal) -> {
-                if("".equals(newVal)) {
-                    cell.getStyleClass().remove("yellow-color");
-                    cell.getStyleClass().remove("red-color");
-                }
-                else if("Y".equals(newVal)) {
-                    cell.getStyleClass().remove("red-color");
-                    cell.getStyleClass().add("yellow-color");
-                }
-                else if("R".equals(newVal)) {
-                    cell.getStyleClass().remove("yellow-color");
-                    cell.getStyleClass().add("red-color");
-                }
-            };
-            cell.itemProperty().addListener((obs, oldVal, newVal) -> {
-                if(oldVal != null) {
-                    oldVal.getColor().removeListener(coloredValListener);
-                }
-                if(newVal == null) {
-                    cell.getStyleClass().remove("yellow-color");
-                    cell.getStyleClass().remove("red-color");
-                } else {
-                    if("".equals(newVal.getColor().get())) {
-                        cell.getStyleClass().remove("yellow-color");
-                        cell.getStyleClass().remove("red-color");
-                    }
-                    else if("Y".equals(newVal.getColor().get())) {
-                        cell.getStyleClass().remove("red-color");
-                        cell.getStyleClass().add("yellow-color");
-                    }
-                    else if("R".equals(newVal.getColor().get())) {
-                        cell.getStyleClass().remove("yellow-color");
-                        cell.getStyleClass().add("red-color");
-                    }
-                    newVal.getColor().addListener(coloredValListener);
-                }
-            });
-
-            return cell;
-        });
+        workPriceTCol.setCellValueFactory(cellData -> cellData.getValue().workPriceProperty());
+        workPriceTCol.setCellFactory(tc -> createTableCell("%,d Kč", Integer::new));
         workPriceTCol.setOnEditCommit(
-            new EventHandler<CellEditEvent<CostDataRow, Integer>>() {
+            new EventHandler<CellEditEvent<CostDataRow, ColoredValue<Integer>>>() {
                 @Override
-                public void handle(CellEditEvent<CostDataRow, Integer> t) {
-                    ((CostDataRow) t.getTableView().getItems().get(
-                            t.getTablePosition().getRow())
-                            ).setWorkPrice(t.getNewValue());
-                    // Refresh table view (because of total costs)
-                    t.getTableView().refresh();
-                }
-            }
-        );
-        wireWeightTCol.setCellValueFactory(new PropertyValueFactory<>("wireWeight"));
-        wireWeightTCol.setCellFactory(TextFieldTableCell.<CostDataRow, Integer>forTableColumn(new StringConverter<Integer>() {
-            @Override
-            public String toString(final Integer value) {
-                return value.toString() + " kg";
-            }
-            @Override
-            public Integer fromString(final String s) {
-                return Integer.parseInt(s.replace(" kg", ""));
-            }
-        }));
-        wireWeightTCol.setOnEditCommit(
-            new EventHandler<CellEditEvent<CostDataRow, Integer>>() {
-                @Override
-                public void handle(CellEditEvent<CostDataRow, Integer> t) {
-                    CostDataRow row = (CostDataRow) t.getTableView().getItems().get(
-                            t.getTablePosition().getRow());
-                    int weight = t.getNewValue();
-                    row.setWireWeight(t.getNewValue());
-                    // Calculate wire price
-                    row.setWirePrice((int)(weight * getWirePriceConstant()));
-                    // TODO Update total costs, gain, profitMargin.
+                public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
+                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(
+                            e.getTablePosition().getRow());
+                    row.setSurface(e.getNewValue());
+                    // Update total costs, gain, profitMargin.
+                    updateSumColumns(row);
                     // Refresh table view
-                    t.getTableView().refresh();
+                    e.getTableView().refresh();
                 }
             }
         );
-        wirePriceTCol.setCellValueFactory(new PropertyValueFactory<>("wirePrice"));
-        wirePriceTCol.setCellFactory(TextFieldTableCell.<CostDataRow, Integer>forTableColumn(new StringConverter<Integer>() {
-            @Override
-            public String toString(final Integer value) {
-                return value.toString() + " Kč";
+        wireWeightTCol.setCellValueFactory(cellData -> cellData.getValue().wireWeightProperty());
+        wireWeightTCol.setCellFactory(tc -> createTableCell("%,d kg", Integer::new));
+        wireWeightTCol.setOnEditCommit(
+            new EventHandler<CellEditEvent<CostDataRow, ColoredValue<Integer>>>() {
+                @Override
+                public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
+                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(
+                            e.getTablePosition().getRow());
+                    row.setWireWeight(e.getNewValue());
+                    int weight = e.getNewValue().getValue();
+                    // Calculate wire price
+                    ColoredValue.ColorType wpc = row.wirePriceProperty().get().getColor();
+                    ColoredValue<Integer> wp = new ColoredValue<>((int)(weight * getWirePriceConstant()), wpc);
+                    row.setWirePrice(wp);
+                    // Update total costs, gain, profitMargin.
+                    updateSumColumns(row);
+                    // Refresh table view
+                    e.getTableView().refresh();
+                }
             }
-            @Override
-            public Integer fromString(final String s) {
-                return Integer.parseInt(s.replace(" Kč", ""));
-            }
-        }));
+        );
+        wirePriceTCol.setCellValueFactory(cellData -> cellData.getValue().wirePriceProperty());
+        wirePriceTCol.setCellFactory(tc -> createTableCell("%,d Kč", Integer::new));
         wirePriceTCol.setOnEditCommit(
-            new EventHandler<CellEditEvent<CostDataRow, Integer>>() {
+            new EventHandler<CellEditEvent<CostDataRow, ColoredValue<Integer>>>() {
                 @Override
-                public void handle(CellEditEvent<CostDataRow, Integer> t) {
-                    ((CostDataRow) t.getTableView().getItems().get(
-                            t.getTablePosition().getRow())
-                            ).setWirePrice(t.getNewValue());
-                    // Refresh table view (because of total costs)
-                    t.getTableView().refresh();
+                public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
+                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(
+                            e.getTablePosition().getRow());
+                    row.setWirePrice(e.getNewValue());
+                    updateSumColumns(row);
+                    e.getTableView().refresh();
                 }
             }
         );
-        pourPriceTCol.setCellValueFactory(new PropertyValueFactory<>("pourPrice"));
-        pourPriceTCol.setCellFactory(TextFieldTableCell.<CostDataRow, Integer>forTableColumn(new StringConverter<Integer>() {
-            @Override
-            public String toString(final Integer value) {
-                return value.toString() + " Kč";
-            }
-            @Override
-            public Integer fromString(final String s) {
-                return Integer.parseInt(s.replace(" Kč", ""));
-            }
-        }));
+        pourPriceTCol.setCellValueFactory(cellData -> cellData.getValue().pourPriceProperty());
+        pourPriceTCol.setCellFactory(tc -> createTableCell("%,d Kč", Integer::new));
         pourPriceTCol.setOnEditCommit(
-            new EventHandler<CellEditEvent<CostDataRow, Integer>>() {
+            new EventHandler<CellEditEvent<CostDataRow, ColoredValue<Integer>>>() {
                 @Override
-                public void handle(CellEditEvent<CostDataRow, Integer> t) {
-                    ((CostDataRow) t.getTableView().getItems().get(
-                            t.getTablePosition().getRow())
-                            ).setPourPrice(t.getNewValue());
-                    // Refresh table view (because of total costs)
-                    t.getTableView().refresh();
+                public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
+                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(
+                            e.getTablePosition().getRow());
+                    row.setPourPrice(e.getNewValue());
+                    updateSumColumns(row);
+                    e.getTableView().refresh();
                 }
             }
         );
-        paintPriceTCol.setCellValueFactory(new PropertyValueFactory<>("paintPrice"));
-        paintPriceTCol.setCellFactory(TextFieldTableCell.<CostDataRow, Integer>forTableColumn(new StringConverter<Integer>() {
-            @Override
-            public String toString(final Integer value) {
-                return value.toString() + " Kč";
-            }
-            @Override
-            public Integer fromString(final String s) {
-                return Integer.parseInt(s.replace(" Kč", ""));
-            }
-        }));
+        paintPriceTCol.setCellValueFactory(cellData -> cellData.getValue().paintPriceProperty());
+        paintPriceTCol.setCellFactory(tc -> createTableCell("%,d Kč", Integer::new));
         paintPriceTCol.setOnEditCommit(
-            new EventHandler<CellEditEvent<CostDataRow, Integer>>() {
+            new EventHandler<CellEditEvent<CostDataRow, ColoredValue<Integer>>>() {
                 @Override
-                public void handle(CellEditEvent<CostDataRow, Integer> t) {
-                    ((CostDataRow) t.getTableView().getItems().get(
-                            t.getTablePosition().getRow())
-                            ).setPaintPrice(t.getNewValue());
-                    // Refresh table view (because of total costs)
-                    t.getTableView().refresh();
+                public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
+                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(
+                            e.getTablePosition().getRow());
+                    row.setPaintPrice(e.getNewValue());
+                    updateSumColumns(row);
+                    e.getTableView().refresh();
                 }
             }
         );
-        sheetPriceTCol.setCellValueFactory(new PropertyValueFactory<>("sheetPrice"));
-        sheetPriceTCol.setCellFactory(TextFieldTableCell.<CostDataRow, Integer>forTableColumn(new StringConverter<Integer>() {
-            @Override
-            public String toString(final Integer value) {
-                return value.toString() + " Kč";
-            }
-            @Override
-            public Integer fromString(final String s) {
-                return Integer.parseInt(s.replace(" Kč", ""));
-            }
-        }));
+        sheetPriceTCol.setCellValueFactory(cellData -> cellData.getValue().sheetPriceProperty());
+        sheetPriceTCol.setCellFactory(tc -> createTableCell("%,d Kč", Integer::new));
         sheetPriceTCol.setOnEditCommit(
-            new EventHandler<CellEditEvent<CostDataRow, Integer>>() {
+            new EventHandler<CellEditEvent<CostDataRow, ColoredValue<Integer>>>() {
                 @Override
-                public void handle(CellEditEvent<CostDataRow, Integer> t) {
-                    ((CostDataRow) t.getTableView().getItems().get(
-                            t.getTablePosition().getRow())
-                            ).setSheetPrice(t.getNewValue());
-                    // Refresh table view (because of total costs)
-                    t.getTableView().refresh();
+                public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
+                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(
+                            e.getTablePosition().getRow());
+                    row.setSheetPrice(e.getNewValue());
+                    updateSumColumns(row);
+                    e.getTableView().refresh();
                 }
             }
         );
-        concretePriceTCol.setCellValueFactory(new PropertyValueFactory<>("concretePrice"));
-        concretePriceTCol.setCellFactory(TextFieldTableCell.<CostDataRow, Integer>forTableColumn(new StringConverter<Integer>() {
-            @Override
-            public String toString(final Integer value) {
-                return value.toString() + " Kč";
-            }
-            @Override
-            public Integer fromString(final String s) {
-                return Integer.parseInt(s.replace(" Kč", ""));
-            }
-        }));
+        concretePriceTCol.setCellValueFactory(cellData -> cellData.getValue().concretePriceProperty());
+        concretePriceTCol.setCellFactory(tc -> createTableCell("%,d Kč", Integer::new));
         concretePriceTCol.setOnEditCommit(
-            new EventHandler<CellEditEvent<CostDataRow, Integer>>() {
+            new EventHandler<CellEditEvent<CostDataRow, ColoredValue<Integer>>>() {
                 @Override
-                public void handle(CellEditEvent<CostDataRow, Integer> t) {
-                    ((CostDataRow) t.getTableView().getItems().get(
-                            t.getTablePosition().getRow())
-                            ).setConcretePrice(t.getNewValue());
-                    // Refresh table view (because of total costs)
-                    t.getTableView().refresh();
+                public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
+                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(
+                            e.getTablePosition().getRow());
+                    row.setConcretePrice(e.getNewValue());
+                    updateSumColumns(row);
+                    e.getTableView().refresh();
                 }
             }
         );
-        pumpPriceTCol.setCellValueFactory(new PropertyValueFactory<>("pumpPrice"));
-        pumpPriceTCol.setCellFactory(TextFieldTableCell.<CostDataRow, Integer>forTableColumn(new StringConverter<Integer>() {
-            @Override
-            public String toString(final Integer value) {
-                return value.toString() + " Kč";
-            }
-            @Override
-            public Integer fromString(final String s) {
-                return Integer.parseInt(s.replace(" Kč", ""));
-            }
-        }));
+        pumpPriceTCol.setCellValueFactory(cellData -> cellData.getValue().pumpPriceProperty());
+        pumpPriceTCol.setCellFactory(tc -> createTableCell("%,d Kč", Integer::new));
         pumpPriceTCol.setOnEditCommit(
-            new EventHandler<CellEditEvent<CostDataRow, Integer>>() {
+            new EventHandler<CellEditEvent<CostDataRow, ColoredValue<Integer>>>() {
                 @Override
-                public void handle(CellEditEvent<CostDataRow, Integer> t) {
-                    ((CostDataRow) t.getTableView().getItems().get(
-                            t.getTablePosition().getRow())
-                            ).setPumpPrice(t.getNewValue());
-                    // Refresh table view (because of total costs)
-                    t.getTableView().refresh();
+                public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
+                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(
+                            e.getTablePosition().getRow());
+                    row.setPumpPrice(e.getNewValue());
+                    updateSumColumns(row);
+                    e.getTableView().refresh();
                 }
             }
         );
-        squarePriceTCol.setCellValueFactory(new PropertyValueFactory<>("squarePrice"));
-        squarePriceTCol.setCellFactory(TextFieldTableCell.<CostDataRow, Integer>forTableColumn(new StringConverter<Integer>() {
-            @Override
-            public String toString(final Integer value) {
-                return value.toString() + " Kč";
-            }
-            @Override
-            public Integer fromString(final String s) {
-                return Integer.parseInt(s.replace(" Kč", ""));
-            }
-        }));
+        squarePriceTCol.setCellValueFactory(cellData -> cellData.getValue().squarePriceProperty());
+        squarePriceTCol.setCellFactory(tc -> createTableCell("%,d Kč", Integer::new));
         squarePriceTCol.setOnEditCommit(
-            new EventHandler<CellEditEvent<CostDataRow, Integer>>() {
+            new EventHandler<CellEditEvent<CostDataRow, ColoredValue<Integer>>>() {
                 @Override
-                public void handle(CellEditEvent<CostDataRow, Integer> t) {
-                    ((CostDataRow) t.getTableView().getItems().get(
-                            t.getTablePosition().getRow())
-                            ).setSquarePrice(t.getNewValue());
-                    // Refresh table view (because of total costs)
-                    t.getTableView().refresh();
+                public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
+                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(
+                            e.getTablePosition().getRow());
+                    row.setSquarePrice(e.getNewValue());
+                    updateSumColumns(row);
+                    e.getTableView().refresh();
                 }
             }
         );
-        billPriceTCol.setCellValueFactory(new PropertyValueFactory<>("billPrice"));
-        billPriceTCol.setCellFactory(TextFieldTableCell.<CostDataRow, Integer>forTableColumn(new StringConverter<Integer>() {
-            @Override
-            public String toString(final Integer value) {
-                return value.toString() + " Kč";
-            }
-            @Override
-            public Integer fromString(final String s) {
-                return Integer.parseInt(s.replace(" Kč", ""));
-            }
-        }));
+        totalCostsTCol.setCellValueFactory(cellData -> cellData.getValue().totalCostsProperty());
+        // TODO This should be non-editable!
+        totalCostsTCol.setCellFactory(tc -> createTableCell("%,d Kč", Integer::new));
+        billPriceTCol.setCellValueFactory(cellData -> cellData.getValue().billPriceProperty());
+        billPriceTCol.setCellFactory(tc -> createTableCell("%,d Kč", Integer::new));
         billPriceTCol.setOnEditCommit(
-            new EventHandler<CellEditEvent<CostDataRow, Integer>>() {
+            new EventHandler<CellEditEvent<CostDataRow, ColoredValue<Integer>>>() {
                 @Override
-                public void handle(CellEditEvent<CostDataRow, Integer> t) {
-                    ((CostDataRow) t.getTableView().getItems().get(
-                            t.getTablePosition().getRow())
-                            ).setBillPrice(t.getNewValue());
-                    // Refresh table view (because of total costs)
-                    t.getTableView().refresh();
+                public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
+                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(
+                            e.getTablePosition().getRow());
+                    row.setBillPrice(e.getNewValue());
+                    updateSumColumns(row);
+                    e.getTableView().refresh();
                 }
             }
         );
-        // These columns are not editable
-        totalCostsTCol.setCellValueFactory(new PropertyValueFactory<>("totalCosts"));
-        totalCostsTCol.setCellFactory(TextFieldTableCell.<CostDataRow, Integer>forTableColumn(new StringConverter<Integer>() {
-            @Override
-            public String toString(final Integer value) {
-                return value.toString() + " Kč";
-            }
-            @Override
-            public Integer fromString(final String s) {
-                return Integer.parseInt(s.replace(" Kč", ""));
-            }
-        }));
-        gainTCol.setCellValueFactory(new PropertyValueFactory<>("gain"));
-        gainTCol.setCellFactory(TextFieldTableCell.<CostDataRow, Integer>forTableColumn(new StringConverter<Integer>() {
-            @Override
-            public String toString(final Integer value) {
-                return value.toString() + " Kč";
-            }
-            @Override
-            public Integer fromString(final String s) {
-                return Integer.parseInt(s.replace(" Kč", ""));
-            }
-        }));
-        profitMarginTCol.setCellValueFactory(new PropertyValueFactory<>("profitMargin"));
-        profitMarginTCol.setCellFactory(TextFieldTableCell.<CostDataRow, Integer>forTableColumn(new StringConverter<Integer>() {
-            @Override
-            public String toString(final Integer value) {
-                return value.toString() + " %";
-            }
-            @Override
-            public Integer fromString(final String s) {
-                return Integer.parseInt(s.replace(" %", ""));
-            }
-        }));
+        gainTCol.setCellValueFactory(cellData -> cellData.getValue().gainProperty());
+        gainTCol.setCellFactory(tc -> createTableCell("%,d Kč", Integer::new));
+        // TODO This should be non-editable!
+        profitMarginTCol.setCellValueFactory(cellData -> cellData.getValue().profitMarginProperty());
+        // TODO This should be non-editable!
+        profitMarginTCol.setCellFactory(tc -> createTableCell("%,d %%", Integer::new));
         
-        // TODO
+        // Set up disabled state on color buttons
+        yellowButton.disableProperty().bind(Bindings.isEmpty(table.getSelectionModel().getSelectedCells()));
+        redButton.disableProperty().bind(Bindings.isEmpty(table.getSelectionModel().getSelectedCells()));
+        
+        // TODO ....
     }
     
 }
