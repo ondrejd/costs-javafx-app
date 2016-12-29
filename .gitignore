@@ -21,3 +21,7 @@ dist
 # exclude "builded" README.md and backup file
 README.html
 README.md.backup
+
+# exlude data files
+naklady-*.xml
+naklady-*.xml.bak
