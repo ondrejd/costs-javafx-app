@@ -348,20 +348,16 @@ public class CostsController implements Initializable {
                     int s = e.getNewValue().getValue();
                     // Calculate work price
                     ColoredValue.ColorType wpc = row.workPriceProperty().get().getColor();
-                    ColoredValue<Integer> wp = new ColoredValue<>((int)(s * getWorkPriceConstant()), wpc);
-                    row.setWorkPrice(wp);
+                    row.setWorkPrice(new ColoredValue<>((int)(s * getWorkPriceConstant()), wpc));
                     // Calculate pour price
                     ColoredValue.ColorType ppc = row.pourPriceProperty().get().getColor();
-                    ColoredValue<Integer> pp = new ColoredValue<>((int)(s * getPourPriceConstant()), ppc);
-                    row.setPourPrice(pp);
+                    row.setPourPrice(new ColoredValue<>((int)(s * getPourPriceConstant()), ppc));
                     // Calculate paint price
                     ColoredValue.ColorType papc = row.paintPriceProperty().get().getColor();
-                    ColoredValue<Integer> pap = new ColoredValue<>((int)(s * getPaintPriceConstant()), papc);
-                    row.setPaintPrice(pap);
+                    row.setPaintPrice(new ColoredValue<>((int)(s * getPaintPriceConstant()), papc));
                     // Calculate sheet price
                     ColoredValue.ColorType spc = row.sheetPriceProperty().get().getColor();
-                    ColoredValue<Integer> sp = new ColoredValue<>((int)(s * getSheetPriceConstant()), spc);
-                    row.setSheetPrice(sp);
+                    row.setSheetPrice(new ColoredValue<>((int)(s * getSheetPriceConstant()), spc));
                     // Update total costs, gain, profitMargin.
                     updateSumColumns(row);
                     // Refresh table view
@@ -377,7 +373,7 @@ public class CostsController implements Initializable {
                 public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
                     CostDataRow row = (CostDataRow) e.getTableView().getItems().get(
                             e.getTablePosition().getRow());
-                    row.setSurface(e.getNewValue());
+                    row.setWorkPrice(e.getNewValue());
                     // Update total costs, gain, profitMargin.
                     updateSumColumns(row);
                     // Refresh table view
@@ -397,8 +393,7 @@ public class CostsController implements Initializable {
                     int weight = e.getNewValue().getValue();
                     // Calculate wire price
                     ColoredValue.ColorType wpc = row.wirePriceProperty().get().getColor();
-                    ColoredValue<Integer> wp = new ColoredValue<>((int)(weight * getWirePriceConstant()), wpc);
-                    row.setWirePrice(wp);
+                    row.setWirePrice(new ColoredValue<>((int)(weight * getWirePriceConstant()), wpc));
                     // Update total costs, gain, profitMargin.
                     updateSumColumns(row);
                     // Refresh table view
@@ -505,7 +500,6 @@ public class CostsController implements Initializable {
             }
         );
         totalCostsTCol.setCellValueFactory(cellData -> cellData.getValue().totalCostsProperty());
-        // TODO This should be non-editable!
         totalCostsTCol.setCellFactory(tc -> createTableCell("%,d Kč", Integer::new));
         billPriceTCol.setCellValueFactory(cellData -> cellData.getValue().billPriceProperty());
         billPriceTCol.setCellFactory(tc -> createTableCell("%,d Kč", Integer::new));
@@ -523,14 +517,79 @@ public class CostsController implements Initializable {
         );
         gainTCol.setCellValueFactory(cellData -> cellData.getValue().gainProperty());
         gainTCol.setCellFactory(tc -> createTableCell("%,d Kč", Integer::new));
-        // TODO This should be non-editable!
         profitMarginTCol.setCellValueFactory(cellData -> cellData.getValue().profitMarginProperty());
-        // TODO This should be non-editable!
         profitMarginTCol.setCellFactory(tc -> createTableCell("%,d %%", Integer::new));
         
         // Set up disabled state on color buttons
         yellowButton.disableProperty().bind(Bindings.isEmpty(table.getSelectionModel().getSelectedCells()));
         redButton.disableProperty().bind(Bindings.isEmpty(table.getSelectionModel().getSelectedCells()));
+        
+        // On price constants change
+        // Values are updated only if current value is calculated (not changed by hand).
+        workPrice.textProperty().addListener((obs, oldVal, newVal) -> {
+            table.getItems().forEach(row -> {
+                int surface = row.getSurface().getValue();
+                double o = "".equals(oldVal) ? 0 : Double.parseDouble(oldVal);
+                double n = "".equals(newVal) ? 0 : Double.parseDouble(newVal);
+                
+                if ((int)(surface * o) == row.getWorkPrice().getValue()) {
+                    ColoredValue.ColorType c = row.workPriceProperty().get().getColor();
+                    row.setWorkPrice(new ColoredValue<>((int)(surface * n), c));
+                    updateSumColumns(row);
+                }
+            });
+        });
+        wirePrice.textProperty().addListener((obs, oldVal, newVal) -> {
+            table.getItems().forEach(row -> {
+                int wireWeight = row.getWireWeight().getValue();
+                double o = "".equals(oldVal) ? 0 : Double.parseDouble(oldVal);
+                double n = "".equals(newVal) ? 0 : Double.parseDouble(newVal);
+                
+                if ((int)(wireWeight * o) == row.getWirePrice().getValue()) {
+                    ColoredValue.ColorType c = row.wirePriceProperty().get().getColor();
+                    row.setWirePrice(new ColoredValue<>((int)(wireWeight * n), c));
+                }
+            });
+        });
+        pourPrice.textProperty().addListener((obs, oldVal, newVal) -> {
+            table.getItems().forEach(row -> {
+                int surface = row.getSurface().getValue();
+                double o = "".equals(oldVal) ? 0 : Double.parseDouble(oldVal);
+                double n = "".equals(newVal) ? 0 : Double.parseDouble(newVal);
+                
+                if ((int)(surface * o) == row.getPourPrice().getValue()) {
+                    ColoredValue.ColorType c = row.pourPriceProperty().get().getColor();
+                    row.setPourPrice(new ColoredValue<>((int)(surface * n), c));
+                    updateSumColumns(row);
+                }
+            });
+        });
+        paintPrice.textProperty().addListener((obs, oldVal, newVal) -> {
+            table.getItems().forEach(row -> {
+                int surface = row.getSurface().getValue();
+                double o = "".equals(oldVal) ? 0 : Double.parseDouble(oldVal);
+                double n = "".equals(newVal) ? 0 : Double.parseDouble(newVal);
+                
+                if ((int)(surface * o) == row.getPaintPrice().getValue()) {
+                    ColoredValue.ColorType c = row.paintPriceProperty().get().getColor();
+                    row.setPaintPrice(new ColoredValue<>((int)(surface * n), c));
+                    updateSumColumns(row);
+                }
+            });
+        });
+        sheetPrice.textProperty().addListener((obs, oldVal, newVal) -> {
+            table.getItems().forEach(row -> {
+                int surface = row.getSurface().getValue();
+                double o = "".equals(oldVal) ? 0 : Double.parseDouble(oldVal);
+                double n = "".equals(newVal) ? 0 : Double.parseDouble(newVal);
+                
+                if ((int)(surface * o) == row.getSheetPrice().getValue()) {
+                    ColoredValue.ColorType c = row.sheetPriceProperty().get().getColor();
+                    row.setSheetPrice(new ColoredValue<>((int)(surface * n), c));
+                    updateSumColumns(row);
+                }
+            });
+        });
         
         // TODO ....
     }
