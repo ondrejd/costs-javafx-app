@@ -21,6 +21,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -88,6 +89,14 @@ public class CostsController implements Initializable {
     private TableColumn<CostDataRow, ColoredValue<Integer>> gainTCol;
     @FXML
     private TableColumn<CostDataRow, ColoredValue<Integer>> profitMarginTCol;
+    @FXML
+    private Label totalCostsSum;
+    @FXML
+    private Label billPriceSum;
+    @FXML
+    private Label gainSum;
+    @FXML
+    private Label profitMarginSum;
     
     @FXML
     private void handleAddRowButtonAction(ActionEvent event) {
@@ -179,6 +188,7 @@ public class CostsController implements Initializable {
         filteredData.setPredicate(n -> {
             return (n.getMonth() == getSelectedMonthIndex());
         });
+        updateSumLabels();
     }
     
     /**
@@ -346,6 +356,9 @@ public class CostsController implements Initializable {
         } else {
             row.setProfitMargin(new ColoredValue<>((int)(g / (tcv / 100)), pmc));
         }
+        
+        // Update summary labels
+        updateSumLabels();
     }
     
     /**
@@ -682,7 +695,33 @@ public class CostsController implements Initializable {
             });
         });
         
-        // TODO ....
+        // Update summary labels
+        updateSumLabels();
     }
     
+    /**
+     * Update summary labels.
+     */
+    private void updateSumLabels() {
+        
+        int tcSum = 0;
+        int bpSum = 0;
+        int gSum  = 0;
+        int pmSum = 0;
+        ObservableList<CostDataRow> rows = table.getItems();
+        
+        for (int i = 0; i < rows.size(); i++) {
+            tcSum += rows.get(i).getTotalCosts().getValue();
+            bpSum += rows.get(i).getTotalCosts().getValue();
+            gSum  += rows.get(i).getTotalCosts().getValue();
+            pmSum += rows.get(i).getProfitMargin().getValue();
+        }
+        
+        pmSum = (int)(pmSum / rows.size());
+        
+        totalCostsSum.setText(tcSum + " Kč");
+        billPriceSum.setText(bpSum + " Kč");
+        gainSum.setText(gSum + " Kč");
+        profitMarginSum.setText(pmSum + " %");
+    }
 }

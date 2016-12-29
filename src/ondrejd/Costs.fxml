@@ -61,5 +61,34 @@
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
          </columnResizePolicy>
       </TableView>
+      <ToolBar prefHeight="40.0" prefWidth="200.0">
+         <items>
+            <Pane HBox.hgrow="ALWAYS" />
+            <Label text="Celkové náklady:" />
+            <Label fx:id="totalCostsSum" text="0 Kč" textFill="RED">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+            </Label>
+            <Label text="Fakturace:" />
+            <Label fx:id="billPriceSum" text="0 Kč" textFill="RED">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+            </Label>
+            <Label text="Absolutní zisk:" />
+            <Label fx:id="gainSum" text="0 Kč" textFill="RED">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+            </Label>
+            <Label text="Marže:" />
+            <Label fx:id="profitMarginSum" text="0 %" textFill="RED">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+            </Label>
+         </items>
+      </ToolBar>
    </children>
 </VBox>
