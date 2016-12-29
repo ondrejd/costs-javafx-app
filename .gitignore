@@ -18,5 +18,6 @@ nbproject/private
 build
 dist
 
-# exclude "builded" README.md
+# exclude "builded" README.md and backup file
 README.html
+README.md.backup
