@@ -10,7 +10,6 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.function.Function;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -25,14 +24,10 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
-import javafx.scene.control.TablePosition;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.paint.Color;
 import javafx.util.StringConverter;
-import javafx.util.converter.IntegerStringConverter;
 
 public class CostsController implements Initializable {
     
@@ -230,6 +225,13 @@ public class CostsController implements Initializable {
         return Double.parseDouble(sheetPrice.getText());
     }
 
+    /**
+     * Create table cell.
+     * @param <T> Used type.
+     * @param format Used format.
+     * @param supplier Method of {@link CostDataRow} that supplies value.
+     * @return Table cell.
+     */
     private <T> TableCell<CostDataRow, ColoredValue<T>> createTableCell(String format, Function<String, T> supplier) {
         TextFieldTableCell<CostDataRow, ColoredValue<T>> cell = new TextFieldTableCell<>();
 
