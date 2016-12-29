@@ -31,6 +31,7 @@ import javafx.util.StringConverter;
 
 public class CostsController implements Initializable {
     private ObservableList<CostDataRow> data;
+    private FilteredList<CostDataRow> filteredData;
     private XmlDataSource xml;
     
     @FXML
@@ -90,7 +91,6 @@ public class CostsController implements Initializable {
         data.add(
                 new CostDataRow(month, "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
         );
-        table.refresh();
     }
     
     @FXML
@@ -171,8 +171,9 @@ public class CostsController implements Initializable {
     
     @FXML
     private void handleMonthsComboBoxAction(ActionEvent event) {
-        int idx = getSelectedMonthIndex();
-        System.out.println("Selected month: " + idx);
+        filteredData.setPredicate(n -> {
+            return (n.getMonth() == getSelectedMonthIndex());
+        });
     }
     
     /**
@@ -347,7 +348,7 @@ public class CostsController implements Initializable {
         monthsComboBox.getSelectionModel().selectFirst();
         
         // Set up data table
-        FilteredList<CostDataRow> filteredData = new FilteredList<>(data, n -> {
+        filteredData = new FilteredList<>(data, n -> {
             return (n.getMonth() == getSelectedMonthIndex());
         });
         table.setEditable(true);
