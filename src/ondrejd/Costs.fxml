@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="1024.0" prefHeight="400.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ondrejd.CostsController">
+   <children>
+      <ToolBar prefHeight="40.0" prefWidth="200.0">
+         <items>
+            <ComboBox fx:id="monthsComboBox" onAction="#handleMonthsComboBoxAction" prefWidth="150.0" />
+            <Button fx:id="addRowButton" mnemonicParsing="false" onAction="#handleAddRowButtonAction" text="Přidej řádek">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+            </Button>
+            <Label text="Práce" />
+            <TextField fx:id="workPrice" prefHeight="25.0" prefWidth="50.0" text="80.0" />
+            <Label text="Drátky" />
+            <TextField fx:id="wirePrice" prefHeight="25.0" prefWidth="50.0" text="20.0" />
+            <Label text="Vsyp" />
+            <TextField fx:id="pourPrice" prefHeight="25.0" prefWidth="50.0" text="9.0" />
+            <Label text="Lak" />
+            <TextField fx:id="paintPrice" prefHeight="25.0" prefWidth="50.0" text="9.0" />
+            <Label text="Fólie" />
+            <TextField fx:id="sheetPrice" prefWidth="50.0" text="2.5" />
+            <Button fx:id="yellowButton" mnemonicParsing="false" onAction="#handleYellowButtonAction" text="Ž" textFill="#ffee00">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+            </Button>
+            <Button fx:id="redButton" mnemonicParsing="false" onAction="#handleRedButtonAction" text="Č" textFill="RED">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+            </Button>
+         </items>
+      </ToolBar>
+      <TableView fx:id="table" prefHeight="361.0" prefWidth="653.0" style=".table-row-cell: 50px;" tableMenuButtonVisible="true" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="placeTCol" prefWidth="-1.0" text="Místo" />
+            <TableColumn fx:id="surfaceTCol" prefWidth="75.0" text="Plocha m2" />
+            <TableColumn fx:id="workPriceTCol" prefWidth="75.0" text="Práce" />
+            <TableColumn fx:id="wireWeightTCol" prefWidth="75.0" text="Drátky (hmotnost)" />
+            <TableColumn fx:id="wirePriceTCol" prefWidth="75.0" text="Drátky (cena)" />
+            <TableColumn fx:id="pourPriceTCol" prefWidth="75.0" text="Vsyp" />
+            <TableColumn fx:id="paintPriceTCol" prefWidth="75.0" text="Lak" />
+            <TableColumn fx:id="sheetPriceTCol" prefWidth="75.0" text="Fólie" />
+            <TableColumn fx:id="concretePriceTCol" prefWidth="75.0" text="Beton" />
+            <TableColumn fx:id="pumpPriceTCol" prefWidth="75.0" text="Čerpadlo" />
+            <TableColumn fx:id="squarePriceTCol" prefWidth="75.0" text="Úhelníky" />
+            <TableColumn fx:id="totalCostsTCol" editable="false" prefWidth="75.0" text="Cel. náklady" />
+            <TableColumn fx:id="billPriceTCol" prefWidth="75.0" text="Fakturace" />
+            <TableColumn fx:id="gainTCol" editable="false" prefWidth="75.0" text="Abs. zisk" />
+            <TableColumn fx:id="profitMarginTCol" editable="false" prefWidth="75.0" text="Marže" />
+        </columns>
+         <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+         </columnResizePolicy>
+      </TableView>
+   </children>
+</VBox>

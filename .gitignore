@@ -10,3 +10,13 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+# exclude NetBeans private project files
+nbproject/private
+
+# exclude build and dist directories
+build
+dist
+
+# exclude "builded" README.md
+README.html
