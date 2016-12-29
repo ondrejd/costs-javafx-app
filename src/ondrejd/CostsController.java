@@ -171,6 +171,7 @@ public class CostsController implements Initializable {
     
     @FXML
     private void handleMonthsComboBoxAction(ActionEvent event) {
+        setConstants();
         filteredData.setPredicate(n -> {
             return (n.getMonth() == getSelectedMonthIndex());
         });
@@ -326,6 +327,16 @@ public class CostsController implements Initializable {
             row.setProfitMargin(new ColoredValue<>((int)(g / (tcv / 100)), pmc));
         }
     }
+    
+    private void setConstants() {
+        int month = getSelectedMonthIndex();
+        MonthConstants constants = XmlDataSource.getConstants(month);
+        workPrice.setText(Double.toString(constants.getWorkPrice()));
+        wirePrice.setText(Double.toString(constants.getWirePrice()));
+        pourPrice.setText(Double.toString(constants.getPourPrice()));
+        paintPrice.setText(Double.toString(constants.getPaintPrice()));
+        sheetPrice.setText(Double.toString(constants.getSheetPrice()));
+    }
 
     /**
      * @return Returns current year.
@@ -337,15 +348,18 @@ public class CostsController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Load data
-        data = XmlDataSource.loadData(getCurrentYear());
-        
         // Set up months combobox
         ObservableList<String> months = FXCollections.observableArrayList(
                 "Leden", "Únor", "Březen", "Duben", "Květen", "Červen", "Červenec",
                 "Srpen", "Září", "Říjen", "Listopad", "Prosinec");
         monthsComboBox.setItems(months);
         monthsComboBox.getSelectionModel().selectFirst();
+        
+        // Load data
+        data = XmlDataSource.loadData(getCurrentYear());
+        
+        // Set up constants
+        setConstants();
         
         // Set up data table
         filteredData = new FilteredList<>(data, n -> {

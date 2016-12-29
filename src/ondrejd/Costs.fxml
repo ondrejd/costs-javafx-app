@@ -18,15 +18,15 @@
                </font>
             </Button>
             <Label text="Práce" />
-            <TextField fx:id="workPrice" prefHeight="25.0" prefWidth="50.0" text="80.0" />
+            <TextField fx:id="workPrice" prefHeight="25.0" prefWidth="50.0" text="" />
             <Label text="Drátky" />
-            <TextField fx:id="wirePrice" prefHeight="25.0" prefWidth="50.0" text="20.0" />
+            <TextField fx:id="wirePrice" prefHeight="25.0" prefWidth="50.0" text="" />
             <Label text="Vsyp" />
-            <TextField fx:id="pourPrice" prefHeight="25.0" prefWidth="50.0" text="9.0" />
+            <TextField fx:id="pourPrice" prefHeight="25.0" prefWidth="50.0" text="" />
             <Label text="Lak" />
-            <TextField fx:id="paintPrice" prefHeight="25.0" prefWidth="50.0" text="9.0" />
+            <TextField fx:id="paintPrice" prefHeight="25.0" prefWidth="50.0" text="" />
             <Label text="Fólie" />
-            <TextField fx:id="sheetPrice" prefWidth="50.0" text="2.5" />
+            <TextField fx:id="sheetPrice" prefHeight="25.0" prefWidth="50.0" text="" />
             <Button fx:id="yellowButton" mnemonicParsing="false" onAction="#handleYellowButtonAction" text="Ž" textFill="#ffee00">
                <font>
                   <Font name="System Bold" size="13.0" />

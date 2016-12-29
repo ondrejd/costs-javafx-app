@@ -41,6 +41,10 @@ public class XmlDataSource {
         return constants;
     }
     
+    public static MonthConstants getConstants(int month) {
+        return constants[month];
+    }
+    
     /**
      * Load data from XML file.
      * @param year Year for which we want to load data
