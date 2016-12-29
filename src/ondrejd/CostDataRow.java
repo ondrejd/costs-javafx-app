@@ -10,6 +10,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
 public class CostDataRow {
+    private final int month;
     private final ObjectProperty<ColoredValue<String>> place = new SimpleObjectProperty<>();
     private final ObjectProperty<ColoredValue<Integer>> surface = new SimpleObjectProperty<>();
     private final ObjectProperty<ColoredValue<Integer>> workPrice = new SimpleObjectProperty<>();
@@ -26,10 +27,11 @@ public class CostDataRow {
     private final ObjectProperty<ColoredValue<Integer>> gain = new SimpleObjectProperty<>();
     private final ObjectProperty<ColoredValue<Integer>> profitMargin = new SimpleObjectProperty<>();
     
-    public CostDataRow(String place, int surface, int workPrice, int wireWeight,
-            int wirePrice, int pourPrice, int paintPrice, int sheetPrice,
-            int concretePrice, int pumpPrice, int squarePrice, int totalCosts,
-            int billPrice, int gain, int profitMargin) {
+    public CostDataRow(int month, String place, int surface, int workPrice, 
+            int wireWeight, int wirePrice, int pourPrice, int paintPrice, 
+            int sheetPrice, int concretePrice, int pumpPrice, int squarePrice, 
+            int totalCosts, int billPrice, int gain, int profitMargin) {
+        this.month = month;
         setPlace(new ColoredValue<>(place));
         setSurface(new ColoredValue<>(surface));
         setWorkPrice(new ColoredValue<>(workPrice));
@@ -45,6 +47,10 @@ public class CostDataRow {
         setBillPrice(new ColoredValue<>(billPrice));
         setGain(new ColoredValue<>(gain));
         setProfitMargin(new ColoredValue<>(profitMargin));
+    }
+    
+    public final int getMonth() {
+        return this.month;
     }
     
     //place

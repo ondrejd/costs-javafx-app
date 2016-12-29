@@ -30,10 +30,8 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.StringConverter;
 
 public class CostsController implements Initializable {
-    
-    protected static ObservableList<CostDataRow> data = FXCollections.<CostDataRow>observableArrayList(
-            new CostDataRow("", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-    );
+    private ObservableList<CostDataRow> data;
+    private XmlDataSource xml;
     
     @FXML
     private ComboBox monthsComboBox;
@@ -88,8 +86,9 @@ public class CostsController implements Initializable {
     
     @FXML
     private void handleAddRowButtonAction(ActionEvent event) {
+        int month = getSelectedMonthIndex();
         data.add(
-                new CostDataRow("", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+                new CostDataRow(month, "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
         );
         table.refresh();
     }
@@ -172,6 +171,14 @@ public class CostsController implements Initializable {
     
     @FXML
     private void handleMonthsComboBoxAction(ActionEvent event) {
+        int idx = getSelectedMonthIndex();
+        System.out.println("Selected month: " + idx);
+    }
+    
+    /**
+     * @return Index (starting from 0) of currently selected month.
+     */
+    private int getSelectedMonthIndex() {
         int idx = 0;
         switch(monthsComboBox.getValue().toString()) {
             case "Leden"    : idx =  0; break;
@@ -187,7 +194,7 @@ public class CostsController implements Initializable {
             case "Listopad" : idx = 10; break;
             case "Prosinec" : idx = 11; break;
         }
-        System.out.println("Selected month: " + idx);
+        return idx;
     }
     
     /**
@@ -319,8 +326,19 @@ public class CostsController implements Initializable {
         }
     }
 
+    /**
+     * @return Returns current year.
+     */
+    public static int getCurrentYear() {
+        java.util.Calendar now = java.util.Calendar.getInstance();
+        return now.get(java.util.Calendar.YEAR);
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        // Load data
+        data = XmlDataSource.loadData(getCurrentYear());
+        
         // Set up months combobox
         ObservableList<String> months = FXCollections.observableArrayList(
                 "Leden", "Únor", "Březen", "Duben", "Květen", "Červen", "Červenec",
@@ -329,7 +347,9 @@ public class CostsController implements Initializable {
         monthsComboBox.getSelectionModel().selectFirst();
         
         // Set up data table
-        FilteredList<CostDataRow> filteredData = new FilteredList<>(data, n -> true);
+        FilteredList<CostDataRow> filteredData = new FilteredList<>(data, n -> {
+            return (n.getMonth() == getSelectedMonthIndex());
+        });
         table.setEditable(true);
         table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         table.getSelectionModel().setCellSelectionEnabled(true);
