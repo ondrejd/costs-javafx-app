@@ -6,11 +6,9 @@
 
 package ondrejd;
 
-import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javax.xml.parsers.DocumentBuilder;
@@ -34,7 +32,7 @@ public class XmlDataSource {
     public static final String DEFAULT_PAINT_PRICE = "9.0";
     public static final String DEFAULT_SHEET_PRICE = "2.5";
     
-    private static MonthConstants[] constants = new MonthConstants[12];
+    private static final MonthConstants[] constants = new MonthConstants[12];
     private static final ObservableList<CostDataRow> data = FXCollections.<CostDataRow>observableArrayList();
 
     public static MonthConstants[] getConstants() {
@@ -43,6 +41,10 @@ public class XmlDataSource {
     
     public static MonthConstants getConstants(int month) {
         return constants[month];
+    }
+    
+    public static void setConstants(int month, MonthConstants consts) {
+        constants[month] = consts;
     }
     
     /**
@@ -228,36 +230,16 @@ public class XmlDataSource {
             }
         }
     }
-
+    
     /**
-     * @param rowElm Element where we look for color attribute.
-     * @param attrName Base name of attribute.
-     * @return Returns color.
+     * Save XML.
+     * @param data Data we want to save.
+     * @param year Year for which are data.
      */
-    private static ColoredValue.ColorType getColorForAttr(Element elm, String attr) {
-        if(elm.hasAttribute(attr + "Color")) {
-            return getColorForIdent(elm.getAttribute(attr + "Color"));
-        } else {
-            return ColoredValue.ColorType.NOCOLOR;
-        }
-    }
-
-    /**
-     * @param ident Color identifier ("R","Y","N").
-     * @return Returns color.
-     */
-    private static ColoredValue.ColorType getColorForIdent(String ident) {
-        switch(ident) {
-            case "Y": return ColoredValue.ColorType.YELLOW;
-            case "R": return ColoredValue.ColorType.RED;
-            case "W":
-            default: return ColoredValue.ColorType.NOCOLOR;
-        }
-    }
-
-    /*
-    public void save(Object[][] constants, javax.swing.table.TableModel[] dataModels, Color[][][] colors) {
+    public static void saveXml(ObservableList<CostDataRow> data, int year) {
         try {
+            String fileName = "naklady-" + Integer.toString(year) + ".xml";
+            File file = new File(fileName);
             // Create document
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -267,7 +249,7 @@ public class XmlDataSource {
             doc.appendChild(root);
             // Set year
             Attr rootAttr = doc.createAttribute("year");
-            rootAttr.setValue(Integer.toString(CostsController.getCurrentYear()));
+            rootAttr.setValue(Integer.toString(year));
             root.setAttributeNode(rootAttr);
             // Go through the months and construct the XML
             //int i = 0;
@@ -276,46 +258,50 @@ public class XmlDataSource {
                 // Month number attributte
                 month.setAttribute("num", Integer.toString(i));
                 // Month attributes with constants
-                month.setAttribute("workCost", constants[i][0].toString());
-                month.setAttribute("wireCost", constants[i][1].toString());
-                month.setAttribute("pourCost", constants[i][2].toString());
-                month.setAttribute("paintCost", constants[i][3].toString());
-                month.setAttribute("sheetCost", constants[i][4].toString());
+                month.setAttribute("workCost", Double.toString(constants[i].getWorkPrice()));
+                month.setAttribute("wireCost", Double.toString(constants[i].getWirePrice()));
+                month.setAttribute("pourCost", Double.toString(constants[i].getPourPrice()));
+                month.setAttribute("paintCost", Double.toString(constants[i].getPaintPrice()));
+                month.setAttribute("sheetCost", Double.toString(constants[i].getSheetPrice()));
                 // Go through all rows
-                for(int x = 0; x < 25; x++) {
+                for(int x = 0; x < data.size(); x++) {
+                    // TODO This is pretty time wasting!
+                    if (data.get(x).getMonth() != i) {
+                        continue;
+                    }
                     Element row = doc.createElement("row");
                     // Set value attributes
-                    row.setAttribute("place", dataModels[i].getValueAt(x, 0).toString());
-                    row.setAttribute("surface", dataModels[i].getValueAt(x, 1).toString());
-                    row.setAttribute("workPrice", dataModels[i].getValueAt(x, 2).toString());
-                    row.setAttribute("wireWeight", dataModels[i].getValueAt(x, 3).toString());
-                    row.setAttribute("wirePrice", dataModels[i].getValueAt(x, 4).toString());
-                    row.setAttribute("pourPrice", dataModels[i].getValueAt(x, 5).toString());
-                    row.setAttribute("paintPrice", dataModels[i].getValueAt(x, 6).toString());
-                    row.setAttribute("sheetPrice", dataModels[i].getValueAt(x, 7).toString());
-                    row.setAttribute("concretePrice", dataModels[i].getValueAt(x, 8).toString());
-                    row.setAttribute("pumpPrice", dataModels[i].getValueAt(x, 9).toString());
-                    row.setAttribute("squarePrice", dataModels[i].getValueAt(x, 10).toString());
-                    row.setAttribute("totalCosts", dataModels[i].getValueAt(x, 11).toString());
-                    row.setAttribute("billPrice", dataModels[i].getValueAt(x, 12).toString());
-                    row.setAttribute("gain", dataModels[i].getValueAt(x, 13).toString());
-                    row.setAttribute("profitMargin", dataModels[i].getValueAt(x, 14).toString());
+                    row.setAttribute("place", data.get(x).getPlace().getValue());
+                    row.setAttribute("surface", data.get(x).getSurface().getValue().toString());
+                    row.setAttribute("workPrice", data.get(x).getWorkPrice().getValue().toString());
+                    row.setAttribute("wireWeight", data.get(x).getWireWeight().getValue().toString());
+                    row.setAttribute("wirePrice", data.get(x).getWirePrice().getValue().toString());
+                    row.setAttribute("pourPrice", data.get(x).getPourPrice().getValue().toString());
+                    row.setAttribute("paintPrice", data.get(x).getPaintPrice().getValue().toString());
+                    row.setAttribute("sheetPrice", data.get(x).getSheetPrice().getValue().toString());
+                    row.setAttribute("concretePrice", data.get(x).getConcretePrice().getValue().toString());
+                    row.setAttribute("pumpPrice", data.get(x).getPumpPrice().getValue().toString());
+                    row.setAttribute("squarePrice", data.get(x).getSquarePrice().getValue().toString());
+                    row.setAttribute("totalCosts", data.get(x).getTotalCosts().getValue().toString());
+                    row.setAttribute("billPrice", data.get(x).getBillPrice().getValue().toString());
+                    row.setAttribute("gain", data.get(x).getGain().getValue().toString());
+                    row.setAttribute("profitMargin", data.get(x).getProfitMargin().getValue().toString());
                     // Set color attributes
-                    row.setAttribute("placeColor", getColorIdentFromColor(colors[i][x][0]));
-                    row.setAttribute("surfaceColor", getColorIdentFromColor(colors[i][x][1]));
-                    row.setAttribute("workPriceColor", getColorIdentFromColor(colors[i][x][2]));
-                    row.setAttribute("wireWeightColor", getColorIdentFromColor(colors[i][x][3]));
-                    row.setAttribute("wirePriceColor", getColorIdentFromColor(colors[i][x][4]));
-                    row.setAttribute("pourPriceColor", getColorIdentFromColor(colors[i][x][5]));
-                    row.setAttribute("paintPriceColor", getColorIdentFromColor(colors[i][x][6]));
-                    row.setAttribute("sheetPriceColor", getColorIdentFromColor(colors[i][x][7]));
-                    row.setAttribute("concretePriceColor", getColorIdentFromColor(colors[i][x][8]));
-                    row.setAttribute("pumpPriceColor", getColorIdentFromColor(colors[i][x][9]));
-                    row.setAttribute("squarePriceColor", getColorIdentFromColor(colors[i][x][10]));
-                    row.setAttribute("totalCostsColor", getColorIdentFromColor(colors[i][x][11]));
-                    row.setAttribute("billPriceColor", getColorIdentFromColor(colors[i][x][12]));
-                    row.setAttribute("gainColor", getColorIdentFromColor(colors[i][x][13]));
-                    row.setAttribute("profitMarginColor", getColorIdentFromColor(colors[i][x][14]));
+                    row.setAttribute("placeColor", colorToIdent(data.get(x).getPlace().getColor()));
+                    row.setAttribute("surfaceColor", colorToIdent(data.get(x).getSurface().getColor()));
+                    row.setAttribute("workPriceColor", colorToIdent(data.get(x).getWorkPrice().getColor()));
+                    row.setAttribute("wireWeightColor", colorToIdent(data.get(x).getWireWeight().getColor()));
+                    row.setAttribute("wirePriceColor", colorToIdent(data.get(x).getWirePrice().getColor()));
+                    row.setAttribute("pourPriceColor", colorToIdent(data.get(x).getPourPrice().getColor()));
+                    row.setAttribute("paintPriceColor", colorToIdent(data.get(x).getPaintPrice().getColor()));
+                    row.setAttribute("sheetPriceColor", colorToIdent(data.get(x).getSheetPrice().getColor()));
+                    row.setAttribute("concretePriceColor", colorToIdent(data.get(x).getConcretePrice().getColor()));
+                    row.setAttribute("pumpPriceColor", colorToIdent(data.get(x).getPumpPrice().getColor()));
+                    row.setAttribute("squarePriceColor", colorToIdent(data.get(x).getSquarePrice().getColor()));
+                    row.setAttribute("totalCostsColor", colorToIdent(data.get(x).getTotalCosts().getColor()));
+                    row.setAttribute("billPriceColor", colorToIdent(data.get(x).getBillPrice().getColor()));
+                    row.setAttribute("gainColor", colorToIdent(data.get(x).getGain().getColor()));
+                    row.setAttribute("profitMarginColor", colorToIdent(data.get(x).getProfitMargin().getColor()));
                     // Append row element to the month element
                     month.appendChild(row);
                 }
@@ -323,7 +309,7 @@ public class XmlDataSource {
                 root.appendChild(month);
             }
             // Backup file
-            backupXml();
+            backupXml(file, year);
             // Write the content into xml file
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
@@ -335,29 +321,55 @@ public class XmlDataSource {
         } catch (TransformerException tfe) {
             tfe.printStackTrace();
         }
-    }*/
+    }
 
     /**
-     * @param color {@link java.awt.Color} we want to convert.
+     * @param rowElm Element where we look for color attribute.
+     * @param attrName Base name of attribute.
+     * @return Returns color.
+     */
+    private static ColoredValue.ColorType getColorForAttr(Element elm, String attr) {
+        if(elm.hasAttribute(attr + "Color")) {
+            return identToColor(elm.getAttribute(attr + "Color"));
+        } else {
+            return ColoredValue.ColorType.NOCOLOR;
+        }
+    }
+
+    /**
+     * @param ident Color identifier ("R","Y","N").
+     * @return Returns color.
+     */
+    private static ColoredValue.ColorType identToColor(String ident) {
+        switch(ident) {
+            case "Y": return ColoredValue.ColorType.YELLOW;
+            case "R": return ColoredValue.ColorType.RED;
+            case "W":
+            default: return ColoredValue.ColorType.NOCOLOR;
+        }
+    }
+
+    /**
+     * @param color {@link ColoredValue.ColorType} we want to convert.
      * @return Color identifier.
-     * /
-    private String getColorIdentFromColor(Color color) {
-        if(color == Color.RED) {
+     */
+    private static String colorToIdent(ColoredValue.ColorType color) {
+        if(color == ColoredValue.ColorType.RED) {
             return "R";
         }
-        else if(color == Color.YELLOW) {
+        else if(color == ColoredValue.ColorType.YELLOW) {
             return "Y";
         }
         else {
-            return "W";
+            return "N";
         }
-    }*/
+    }
 
     /**
      * Creates backup XML file (if needed).
      * @param file
      * @param year
-     * /
+     */
     private static void backupXml(File file, int year) {
         if(!file.exists()) {
             return;
@@ -371,6 +383,6 @@ public class XmlDataSource {
         } catch(IOException ioe) {
             ioe.printStackTrace();
         }
-    }*/
+    }
 
 }

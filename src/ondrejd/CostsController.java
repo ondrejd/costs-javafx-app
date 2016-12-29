@@ -32,7 +32,6 @@ import javafx.util.StringConverter;
 public class CostsController implements Initializable {
     private ObservableList<CostDataRow> data;
     private FilteredList<CostDataRow> filteredData;
-    private XmlDataSource xml;
     
     @FXML
     private ComboBox monthsComboBox;
@@ -175,6 +174,14 @@ public class CostsController implements Initializable {
         filteredData.setPredicate(n -> {
             return (n.getMonth() == getSelectedMonthIndex());
         });
+    }
+    
+    /**
+     * Save data to XML file - called from {@link ondrejd.Costs}.
+     */
+    public void saveData() {
+        System.out.println("Test!");
+        XmlDataSource.saveXml(data, getCurrentYear());
     }
     
     /**
@@ -328,6 +335,9 @@ public class CostsController implements Initializable {
         }
     }
     
+    /**
+     * Set text fields for price constants from data storred in {@link ondrejd.XmlDataSource}.
+     */
     private void setConstants() {
         int month = getSelectedMonthIndex();
         MonthConstants constants = XmlDataSource.getConstants(month);
@@ -336,6 +346,20 @@ public class CostsController implements Initializable {
         pourPrice.setText(Double.toString(constants.getPourPrice()));
         paintPrice.setText(Double.toString(constants.getPaintPrice()));
         sheetPrice.setText(Double.toString(constants.getSheetPrice()));
+    }
+    
+    /**
+     * Save changes in price constants into {@link ondrejd.XmlDataSource}.
+     */
+    private void updateConstants() {
+        int month = getSelectedMonthIndex();
+        MonthConstants consts = XmlDataSource.getConstants(month);
+        consts.setWorkPrice(Double.parseDouble(workPrice.getText()));
+        consts.setWirePrice(Double.parseDouble(wirePrice.getText()));
+        consts.setPourPrice(Double.parseDouble(pourPrice.getText()));
+        consts.setPaintPrice(Double.parseDouble(paintPrice.getText()));
+        consts.setSheetPrice(Double.parseDouble(sheetPrice.getText()));
+        XmlDataSource.setConstants(month, consts);
     }
 
     /**
@@ -574,6 +598,8 @@ public class CostsController implements Initializable {
                     row.setWorkPrice(new ColoredValue<>((int)(surface * n), c));
                     updateSumColumns(row);
                 }
+                
+                updateConstants();
             });
         });
         wirePrice.textProperty().addListener((obs, oldVal, newVal) -> {
@@ -586,6 +612,8 @@ public class CostsController implements Initializable {
                     ColoredValue.ColorType c = row.wirePriceProperty().get().getColor();
                     row.setWirePrice(new ColoredValue<>((int)(wireWeight * n), c));
                 }
+                
+                updateConstants();
             });
         });
         pourPrice.textProperty().addListener((obs, oldVal, newVal) -> {
@@ -599,6 +627,8 @@ public class CostsController implements Initializable {
                     row.setPourPrice(new ColoredValue<>((int)(surface * n), c));
                     updateSumColumns(row);
                 }
+                
+                updateConstants();
             });
         });
         paintPrice.textProperty().addListener((obs, oldVal, newVal) -> {
@@ -612,6 +642,8 @@ public class CostsController implements Initializable {
                     row.setPaintPrice(new ColoredValue<>((int)(surface * n), c));
                     updateSumColumns(row);
                 }
+                
+                updateConstants();
             });
         });
         sheetPrice.textProperty().addListener((obs, oldVal, newVal) -> {
@@ -625,6 +657,8 @@ public class CostsController implements Initializable {
                     row.setSheetPrice(new ColoredValue<>((int)(surface * n), c));
                     updateSumColumns(row);
                 }
+                
+                updateConstants();
             });
         });
         

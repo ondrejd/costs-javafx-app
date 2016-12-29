@@ -16,15 +16,23 @@ public class Costs extends Application {
     
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("Costs.fxml"));
-        
+        FXMLLoader loader = new FXMLLoader();
+        Parent root = loader.load(getClass().getResource("Costs.fxml").openStream());
         Scene scene = new Scene(root);
+        CostsController controller = (CostsController)loader.getController();
         
         // Setting the css style file
         scene.getStylesheets().add("resources/css/styles.css");
         
         stage.setTitle("Náklady");
         stage.setScene(scene);
+        stage.setOnCloseRequest(event -> {
+            try {
+                controller.saveData();
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+        });
         stage.show();
     }
 
@@ -33,11 +41,5 @@ public class Costs extends Application {
      */
     public static void main(String[] args) {
         launch(args);
-    }
-    
-    @Override
-    public void stop(){
-        System.out.println("Stage is closing");
-        // Save file
     }
 }
