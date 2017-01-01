@@ -284,7 +284,9 @@ public class CostsController implements Initializable {
 
             @Override
             public ColoredValue<T> fromString(String string) {
-                T value = supplier.apply(string);
+                String s = string.replace(" m2", "").replace(" Kč", "").
+                        replace(" Kg", "").replace(" %", "").replace(" ", "");
+                T value = supplier.apply("".equals(s) ? "0" : s);
                 ColoredValue.ColorType c = cell.getItem() == null 
                         ? ColoredValue.ColorType.NOCOLOR 
                         : cell.getItem().getColor();
@@ -355,7 +357,8 @@ public class CostsController implements Initializable {
         if (tcv == 0 || g == 0) {
             row.setProfitMargin(new ColoredValue<>(0, pmc));
         } else {
-            row.setProfitMargin(new ColoredValue<>((int)(g / (tcv / 100)), pmc));
+            double pm = ((double) g / (double) bp) * 100;
+            row.setProfitMargin(new ColoredValue<>((int) pm, pmc));
         }
         
         // Update summary labels
