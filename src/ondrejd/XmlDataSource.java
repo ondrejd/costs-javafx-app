@@ -166,7 +166,7 @@ public class XmlDataSource {
             row.setAttribute("totalCostsColor", "N");
             row.setAttribute("billPriceColor", "N");
             row.setAttribute("gainColor", "N");
-            row.setAttribute("profitMarginColor", "N");
+            row.setAttribute("profitMarginColor", "G");
             // Append data row to month
             month.appendChild(row);
             // It's all - there are no default data
@@ -225,7 +225,7 @@ public class XmlDataSource {
                 row.setTotalCosts(new ColoredValue<>(Integer.parseInt(rowElm.getAttribute("totalCosts")), getColorForAttr(rowElm, "totalCosts")));
                 row.setBillPrice(new ColoredValue<>(Integer.parseInt(rowElm.getAttribute("billPrice")), getColorForAttr(rowElm, "billPrice")));
                 row.setGain(new ColoredValue<>(Integer.parseInt(rowElm.getAttribute("gain")), getColorForAttr(rowElm, "gain")));
-                row.setProfitMargin(new ColoredValue<>(Integer.parseInt(rowElm.getAttribute("profitMargin")), getColorForAttr(rowElm, "profitMargin")));
+                row.setProfitMargin(new ColoredValue<>(Integer.parseInt(rowElm.getAttribute("profitMargin")), ColoredValue.ColorType.GREEN));
                 data.add(row);
             }
         }
@@ -301,7 +301,7 @@ public class XmlDataSource {
                     row.setAttribute("totalCostsColor", colorToIdent(data.get(x).getTotalCosts().getColor()));
                     row.setAttribute("billPriceColor", colorToIdent(data.get(x).getBillPrice().getColor()));
                     row.setAttribute("gainColor", colorToIdent(data.get(x).getGain().getColor()));
-                    row.setAttribute("profitMarginColor", colorToIdent(data.get(x).getProfitMargin().getColor()));
+                    row.setAttribute("profitMarginColor", "N");
                     // Append row element to the month element
                     month.appendChild(row);
                 }
@@ -342,6 +342,7 @@ public class XmlDataSource {
      */
     private static ColoredValue.ColorType identToColor(String ident) {
         switch(ident) {
+            case "G": return ColoredValue.ColorType.GREEN;
             case "Y": return ColoredValue.ColorType.YELLOW;
             case "R": return ColoredValue.ColorType.RED;
             case "W":
@@ -354,13 +355,13 @@ public class XmlDataSource {
      * @return Color identifier.
      */
     private static String colorToIdent(ColoredValue.ColorType color) {
-        if(color == ColoredValue.ColorType.RED) {
+        if(color == ColoredValue.ColorType.GREEN) {
+            return "G";
+        } else if(color == ColoredValue.ColorType.RED) {
             return "R";
-        }
-        else if(color == ColoredValue.ColorType.YELLOW) {
+        } else if(color == ColoredValue.ColorType.YELLOW) {
             return "Y";
-        }
-        else {
+        } else {
             return "N";
         }
     }

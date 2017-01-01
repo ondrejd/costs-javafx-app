@@ -46,7 +46,7 @@ public class CostDataRow {
         setTotalCosts(new ColoredValue<>(totalCosts));
         setBillPrice(new ColoredValue<>(billPrice));
         setGain(new ColoredValue<>(gain));
-        setProfitMargin(new ColoredValue<>(profitMargin));
+        setProfitMargin(new ColoredValue<>(profitMargin, ColoredValue.ColorType.GREEN));
     }
     
     public final int getMonth() {

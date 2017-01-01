@@ -27,9 +27,12 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
+import javafx.scene.control.TablePosition;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.util.StringConverter;
 
 public class CostsController implements Initializable {
@@ -54,6 +57,8 @@ public class CostsController implements Initializable {
     private TextField sheetPrice;
     @FXML
     private Button addRowButton;
+    @FXML
+    private Button delRowButton;
     @FXML
     private Button yellowButton;
     @FXML
@@ -105,6 +110,13 @@ public class CostsController implements Initializable {
         data.add(
                 new CostDataRow(month, "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
         );
+    }
+    
+    @FXML
+    private void handleDelRowButtonAction(ActionEvent event) {
+        int idx = table.getSelectionModel().getSelectedIndex();
+        CostDataRow row = (CostDataRow) table.getItems().get(idx);
+        data.remove(row);
     }
     
     @FXML
@@ -190,6 +202,7 @@ public class CostsController implements Initializable {
             return (n.getMonth() == getSelectedMonthIndex());
         });
         updateSumLabels();
+        focusTable();
     }
     
     /**
@@ -302,6 +315,8 @@ public class CostsController implements Initializable {
                 cell.setStyle("-fx-background-color: yellow ;");
             } else if (newState == ColoredValue.ColorType.RED) {
                 cell.setStyle("-fx-background-color: red ;");
+            } else if (newState == ColoredValue.ColorType.GREEN) {
+                cell.setStyle("-fx-background-color: #cbe2ae ;");
             }
         };
         
@@ -318,7 +333,9 @@ public class CostsController implements Initializable {
                     cell.setStyle("-fx-background-color: yellow ;");
                 } else if (newItem.getColor() == ColoredValue.ColorType.RED) {
                     cell.setStyle("-fx-background-color: red ;");
-                }               
+                } else if (newItem.getColor() == ColoredValue.ColorType.GREEN) {
+                    cell.setStyle("-fx-background-color: #cbe2ae ;");
+                }
                 newItem.colorProperty().addListener(valListener);
             }
         });
@@ -352,13 +369,11 @@ public class CostsController implements Initializable {
         }
         
         // Update profit margin
-        ColoredValue.ColorType pmc = row.profitMarginProperty().get().getColor();
-        
         if (tcv == 0 || g == 0) {
-            row.setProfitMargin(new ColoredValue<>(0, pmc));
+            row.setProfitMargin(new ColoredValue<>(0, ColoredValue.ColorType.GREEN));
         } else {
             double pm = ((double) g / (double) bp) * 100;
-            row.setProfitMargin(new ColoredValue<>((int) pm, pmc));
+            row.setProfitMargin(new ColoredValue<>((int) pm, ColoredValue.ColorType.GREEN));
         }
         
         // Update summary labels
@@ -412,6 +427,12 @@ public class CostsController implements Initializable {
         monthsComboBox.setItems(months);
         monthsComboBox.getSelectionModel().selectFirst();
         
+        // Set up button icons
+        Image iconAddRow = new Image("resources/graphics/table_row_insert.png");
+        Image iconDelRow = new Image("resources/graphics/table_row_delete.png");
+        addRowButton.setGraphic(new ImageView(iconAddRow));
+        delRowButton.setGraphic(new ImageView(iconDelRow));
+        
         // Load data
         data = XmlDataSource.loadData(getCurrentYear());
         
@@ -461,7 +482,8 @@ public class CostsController implements Initializable {
                     // Refresh table view
                     e.getTableView().refresh();
                     // Set focus on the table
-                    e.getTableView().requestFocus();
+                    //e.getTableView().requestFocus();
+                    focusTable();
                 }
             }
         );
@@ -476,7 +498,8 @@ public class CostsController implements Initializable {
                     row.setWorkPrice(e.getNewValue());
                     updateSumColumns(row);
                     e.getTableView().refresh();
-                    e.getTableView().requestFocus();
+                    //e.getTableView().requestFocus();
+                    focusTable();
                 }
             }
         );
@@ -496,7 +519,8 @@ public class CostsController implements Initializable {
                     // Update all
                     updateSumColumns(row);
                     e.getTableView().refresh();
-                    e.getTableView().requestFocus();
+                    //e.getTableView().requestFocus();
+                    focusTable();
                 }
             }
         );
@@ -511,7 +535,8 @@ public class CostsController implements Initializable {
                     row.setWirePrice(e.getNewValue());
                     updateSumColumns(row);
                     e.getTableView().refresh();
-                    e.getTableView().requestFocus();
+                    //e.getTableView().requestFocus();
+                    focusTable();
                 }
             }
         );
@@ -526,7 +551,8 @@ public class CostsController implements Initializable {
                     row.setPourPrice(e.getNewValue());
                     updateSumColumns(row);
                     e.getTableView().refresh();
-                    e.getTableView().requestFocus();
+                    //e.getTableView().requestFocus();
+                    focusTable();
                 }
             }
         );
@@ -541,7 +567,8 @@ public class CostsController implements Initializable {
                     row.setPaintPrice(e.getNewValue());
                     updateSumColumns(row);
                     e.getTableView().refresh();
-                    e.getTableView().requestFocus();
+                    //e.getTableView().requestFocus();
+                    focusTable();
                 }
             }
         );
@@ -556,7 +583,8 @@ public class CostsController implements Initializable {
                     row.setSheetPrice(e.getNewValue());
                     updateSumColumns(row);
                     e.getTableView().refresh();
-                    e.getTableView().requestFocus();
+                    //e.getTableView().requestFocus();
+                    focusTable();
                 }
             }
         );
@@ -571,7 +599,8 @@ public class CostsController implements Initializable {
                     row.setConcretePrice(e.getNewValue());
                     updateSumColumns(row);
                     e.getTableView().refresh();
-                    e.getTableView().requestFocus();
+                    //e.getTableView().requestFocus();
+                    focusTable();
                 }
             }
         );
@@ -586,7 +615,8 @@ public class CostsController implements Initializable {
                     row.setPumpPrice(e.getNewValue());
                     updateSumColumns(row);
                     e.getTableView().refresh();
-                    e.getTableView().requestFocus();
+                    //e.getTableView().requestFocus();
+                    focusTable();
                 }
             }
         );
@@ -601,7 +631,8 @@ public class CostsController implements Initializable {
                     row.setSquarePrice(e.getNewValue());
                     updateSumColumns(row);
                     e.getTableView().refresh();
-                    e.getTableView().requestFocus();
+                    //e.getTableView().requestFocus();
+                    focusTable();
                 }
             }
         );
@@ -618,7 +649,8 @@ public class CostsController implements Initializable {
                     row.setBillPrice(e.getNewValue());
                     updateSumColumns(row);
                     e.getTableView().refresh();
-                    e.getTableView().requestFocus();
+                    //e.getTableView().requestFocus();
+                    focusTable();
                 }
             }
         );
@@ -646,7 +678,7 @@ public class CostsController implements Initializable {
                 }
                 
                 updateConstants();
-                table.requestFocus();
+                focusTable();
             });
         });
         wirePrice.textProperty().addListener((obs, oldVal, newVal) -> {
@@ -661,7 +693,7 @@ public class CostsController implements Initializable {
                 }
                 
                 updateConstants();
-                table.requestFocus();
+                focusTable();
             });
         });
         pourPrice.textProperty().addListener((obs, oldVal, newVal) -> {
@@ -677,7 +709,7 @@ public class CostsController implements Initializable {
                 }
                 
                 updateConstants();
-                table.requestFocus();
+                focusTable();
             });
         });
         paintPrice.textProperty().addListener((obs, oldVal, newVal) -> {
@@ -693,7 +725,7 @@ public class CostsController implements Initializable {
                 }
                 
                 updateConstants();
-                table.requestFocus();
+                focusTable();
             });
         });
         sheetPrice.textProperty().addListener((obs, oldVal, newVal) -> {
@@ -709,13 +741,27 @@ public class CostsController implements Initializable {
                 }
                 
                 updateConstants();
-                table.requestFocus();
+                focusTable();
             });
+        });
+        
+        // ....
+        table.setOnKeyPressed(event -> {
+            TablePosition<CostDataRow, ?> pos = table.getFocusModel().getFocusedCell() ;
+            if (pos != null) {
+                table.edit(pos.getRow(), pos.getTableColumn());
+            }
         });
         
         // Update summary labels
         updateSumLabels();
-
+        focusTable();
+    }
+    
+    /**
+     * Set table on focus.
+     */
+    private void focusTable() {
         Platform.runLater(new Runnable() {
             public void run() {
                 table.requestFocus();
@@ -742,9 +788,9 @@ public class CostsController implements Initializable {
         
         pmSum = (int)(pmSum / rows.size());
         
-        totalCostsSum.setText(tcSum + " Kč");
-        billPriceSum.setText(bpSum + " Kč");
-        gainSum.setText(gSum + " Kč");
-        profitMarginSum.setText(pmSum + " %");
+        totalCostsSum.setText(String.format("%,d Kč", tcSum));
+        billPriceSum.setText(String.format("%,d Kč", bpSum));
+        gainSum.setText(String.format("%,d Kč", gSum));
+        profitMarginSum.setText(String.format("%,d %%", pmSum));
     }
 }

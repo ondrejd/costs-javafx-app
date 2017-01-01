@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.text.*?>
 <?import java.lang.*?>
 <?import java.util.*?>
@@ -12,10 +14,18 @@
       <ToolBar prefHeight="40.0" prefWidth="200.0">
          <items>
             <ComboBox fx:id="monthsComboBox" onAction="#handleMonthsComboBoxAction" prefWidth="150.0" />
-            <Button fx:id="addRowButton" mnemonicParsing="false" onAction="#handleAddRowButtonAction" text="Přidej řádek">
+            <Button fx:id="addRowButton" mnemonicParsing="false" onAction="#handleAddRowButtonAction">
                <font>
                   <Font name="System Bold" size="13.0" />
                </font>
+               <tooltip>
+                  <Tooltip text="Přidej řádek" />
+               </tooltip>
+            </Button>
+            <Button fx:id="delRowButton" mnemonicParsing="false" onAction="#handleDelRowButtonAction">
+               <tooltip>
+                  <Tooltip text="Odeber řádek" />
+               </tooltip>
             </Button>
             <Label text="Práce" />
             <TextField fx:id="workPrice" prefHeight="25.0" prefWidth="50.0" text="" />
@@ -65,27 +75,27 @@
          <items>
             <Pane HBox.hgrow="ALWAYS" />
             <Label text="Celkové náklady:" />
-            <Label fx:id="totalCostsSum" text="0 Kč" textFill="RED">
+            <Label fx:id="totalCostsSum" text="0 Kč">
                <font>
-                  <Font name="System Bold" size="13.0" />
+                  <Font name="System Bold" size="14.0" />
                </font>
             </Label>
             <Label text="Fakturace:" />
-            <Label fx:id="billPriceSum" text="0 Kč" textFill="RED">
+            <Label fx:id="billPriceSum" text="0 Kč">
                <font>
-                  <Font name="System Bold" size="13.0" />
+                  <Font name="System Bold" size="14.0" />
                </font>
             </Label>
             <Label text="Absolutní zisk:" />
-            <Label fx:id="gainSum" text="0 Kč" textFill="RED">
+            <Label fx:id="gainSum" text="0 Kč" textFill="GREEN">
                <font>
-                  <Font name="System Bold" size="13.0" />
+                  <Font name="System Bold" size="14.0" />
                </font>
             </Label>
             <Label text="Marže:" />
-            <Label fx:id="profitMarginSum" text="0 %" textFill="RED">
+            <Label fx:id="profitMarginSum" text="0 %">
                <font>
-                  <Font name="System Bold" size="13.0" />
+                  <Font name="System Bold" size="14.0" />
                </font>
             </Label>
          </items>

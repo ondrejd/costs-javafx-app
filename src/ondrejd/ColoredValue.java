@@ -10,7 +10,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
 public class ColoredValue<T> {
-    public enum ColorType { NOCOLOR, RED, YELLOW };
+    public enum ColorType { GREEN, NOCOLOR, RED, YELLOW };
 
     private final T value;
     private final ObjectProperty<ColorType> color = new SimpleObjectProperty<>(ColorType.NOCOLOR);
