@@ -39,7 +39,7 @@
             </Button>
          </items>
       </ToolBar>
-      <TableView fx:id="table" prefHeight="361.0" prefWidth="653.0" style=".table-row-cell: 50px;" tableMenuButtonVisible="true" VBox.vgrow="ALWAYS">
+      <TableView fx:id="table" prefHeight="361.0" prefWidth="653.0" style=".table-row-cell: 50px;" tableMenuButtonVisible="false" VBox.vgrow="ALWAYS">
         <columns>
             <TableColumn fx:id="placeTCol" prefWidth="-1.0" text="Místo" />
             <TableColumn fx:id="surfaceTCol" prefWidth="75.0" text="Plocha m2" />

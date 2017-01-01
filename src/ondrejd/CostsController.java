@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.function.Function;
 import java.util.prefs.*;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
@@ -456,6 +457,8 @@ public class CostsController implements Initializable {
                     updateSumColumns(row);
                     // Refresh table view
                     e.getTableView().refresh();
+                    // Set focus on the table
+                    e.getTableView().requestFocus();
                 }
             }
         );
@@ -468,10 +471,9 @@ public class CostsController implements Initializable {
                     CostDataRow row = (CostDataRow) e.getTableView().getItems().get(
                             e.getTablePosition().getRow());
                     row.setWorkPrice(e.getNewValue());
-                    // Update total costs, gain, profitMargin.
                     updateSumColumns(row);
-                    // Refresh table view
                     e.getTableView().refresh();
+                    e.getTableView().requestFocus();
                 }
             }
         );
@@ -488,10 +490,10 @@ public class CostsController implements Initializable {
                     // Calculate wire price
                     ColoredValue.ColorType wpc = row.wirePriceProperty().get().getColor();
                     row.setWirePrice(new ColoredValue<>((int)(weight * getWirePriceConstant()), wpc));
-                    // Update total costs, gain, profitMargin.
+                    // Update all
                     updateSumColumns(row);
-                    // Refresh table view
                     e.getTableView().refresh();
+                    e.getTableView().requestFocus();
                 }
             }
         );
@@ -506,6 +508,7 @@ public class CostsController implements Initializable {
                     row.setWirePrice(e.getNewValue());
                     updateSumColumns(row);
                     e.getTableView().refresh();
+                    e.getTableView().requestFocus();
                 }
             }
         );
@@ -520,6 +523,7 @@ public class CostsController implements Initializable {
                     row.setPourPrice(e.getNewValue());
                     updateSumColumns(row);
                     e.getTableView().refresh();
+                    e.getTableView().requestFocus();
                 }
             }
         );
@@ -534,6 +538,7 @@ public class CostsController implements Initializable {
                     row.setPaintPrice(e.getNewValue());
                     updateSumColumns(row);
                     e.getTableView().refresh();
+                    e.getTableView().requestFocus();
                 }
             }
         );
@@ -548,6 +553,7 @@ public class CostsController implements Initializable {
                     row.setSheetPrice(e.getNewValue());
                     updateSumColumns(row);
                     e.getTableView().refresh();
+                    e.getTableView().requestFocus();
                 }
             }
         );
@@ -562,6 +568,7 @@ public class CostsController implements Initializable {
                     row.setConcretePrice(e.getNewValue());
                     updateSumColumns(row);
                     e.getTableView().refresh();
+                    e.getTableView().requestFocus();
                 }
             }
         );
@@ -576,6 +583,7 @@ public class CostsController implements Initializable {
                     row.setPumpPrice(e.getNewValue());
                     updateSumColumns(row);
                     e.getTableView().refresh();
+                    e.getTableView().requestFocus();
                 }
             }
         );
@@ -590,6 +598,7 @@ public class CostsController implements Initializable {
                     row.setSquarePrice(e.getNewValue());
                     updateSumColumns(row);
                     e.getTableView().refresh();
+                    e.getTableView().requestFocus();
                 }
             }
         );
@@ -606,6 +615,7 @@ public class CostsController implements Initializable {
                     row.setBillPrice(e.getNewValue());
                     updateSumColumns(row);
                     e.getTableView().refresh();
+                    e.getTableView().requestFocus();
                 }
             }
         );
@@ -633,6 +643,7 @@ public class CostsController implements Initializable {
                 }
                 
                 updateConstants();
+                table.requestFocus();
             });
         });
         wirePrice.textProperty().addListener((obs, oldVal, newVal) -> {
@@ -647,6 +658,7 @@ public class CostsController implements Initializable {
                 }
                 
                 updateConstants();
+                table.requestFocus();
             });
         });
         pourPrice.textProperty().addListener((obs, oldVal, newVal) -> {
@@ -662,6 +674,7 @@ public class CostsController implements Initializable {
                 }
                 
                 updateConstants();
+                table.requestFocus();
             });
         });
         paintPrice.textProperty().addListener((obs, oldVal, newVal) -> {
@@ -677,6 +690,7 @@ public class CostsController implements Initializable {
                 }
                 
                 updateConstants();
+                table.requestFocus();
             });
         });
         sheetPrice.textProperty().addListener((obs, oldVal, newVal) -> {
@@ -692,18 +706,24 @@ public class CostsController implements Initializable {
                 }
                 
                 updateConstants();
+                table.requestFocus();
             });
         });
         
         // Update summary labels
         updateSumLabels();
+
+        Platform.runLater(new Runnable() {
+            public void run() {
+                table.requestFocus();
+            }
+        });
     }
     
     /**
      * Update summary labels.
      */
     private void updateSumLabels() {
-        
         int tcSum = 0;
         int bpSum = 0;
         int gSum  = 0;
