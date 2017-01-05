@@ -482,7 +482,6 @@ public class CostsController implements Initializable {
                     // Refresh table view
                     e.getTableView().refresh();
                     // Set focus on the table
-                    //e.getTableView().requestFocus();
                     focusTable();
                 }
             }
@@ -493,12 +492,15 @@ public class CostsController implements Initializable {
             new EventHandler<CellEditEvent<CostDataRow, ColoredValue<Integer>>>() {
                 @Override
                 public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
+                    int price = e.getNewValue().getValue();
+                    if (price < 12000) {
+                        price = 12000;
+                    }
                     CostDataRow row = (CostDataRow) e.getTableView().getItems().get(
                             e.getTablePosition().getRow());
-                    row.setWorkPrice(e.getNewValue());
+                    row.setWorkPrice(new ColoredValue<>(price, row.workPriceProperty().get().getColor()));
                     updateSumColumns(row);
                     e.getTableView().refresh();
-                    //e.getTableView().requestFocus();
                     focusTable();
                 }
             }
@@ -519,7 +521,6 @@ public class CostsController implements Initializable {
                     // Update all
                     updateSumColumns(row);
                     e.getTableView().refresh();
-                    //e.getTableView().requestFocus();
                     focusTable();
                 }
             }
@@ -535,7 +536,6 @@ public class CostsController implements Initializable {
                     row.setWirePrice(e.getNewValue());
                     updateSumColumns(row);
                     e.getTableView().refresh();
-                    //e.getTableView().requestFocus();
                     focusTable();
                 }
             }
@@ -551,7 +551,6 @@ public class CostsController implements Initializable {
                     row.setPourPrice(e.getNewValue());
                     updateSumColumns(row);
                     e.getTableView().refresh();
-                    //e.getTableView().requestFocus();
                     focusTable();
                 }
             }
@@ -567,7 +566,6 @@ public class CostsController implements Initializable {
                     row.setPaintPrice(e.getNewValue());
                     updateSumColumns(row);
                     e.getTableView().refresh();
-                    //e.getTableView().requestFocus();
                     focusTable();
                 }
             }
@@ -583,7 +581,6 @@ public class CostsController implements Initializable {
                     row.setSheetPrice(e.getNewValue());
                     updateSumColumns(row);
                     e.getTableView().refresh();
-                    //e.getTableView().requestFocus();
                     focusTable();
                 }
             }
@@ -599,7 +596,6 @@ public class CostsController implements Initializable {
                     row.setConcretePrice(e.getNewValue());
                     updateSumColumns(row);
                     e.getTableView().refresh();
-                    //e.getTableView().requestFocus();
                     focusTable();
                 }
             }
@@ -615,7 +611,6 @@ public class CostsController implements Initializable {
                     row.setPumpPrice(e.getNewValue());
                     updateSumColumns(row);
                     e.getTableView().refresh();
-                    //e.getTableView().requestFocus();
                     focusTable();
                 }
             }
@@ -631,7 +626,6 @@ public class CostsController implements Initializable {
                     row.setSquarePrice(e.getNewValue());
                     updateSumColumns(row);
                     e.getTableView().refresh();
-                    //e.getTableView().requestFocus();
                     focusTable();
                 }
             }
@@ -649,7 +643,6 @@ public class CostsController implements Initializable {
                     row.setBillPrice(e.getNewValue());
                     updateSumColumns(row);
                     e.getTableView().refresh();
-                    //e.getTableView().requestFocus();
                     focusTable();
                 }
             }
@@ -781,8 +774,8 @@ public class CostsController implements Initializable {
         
         for (int i = 0; i < rows.size(); i++) {
             tcSum += rows.get(i).getTotalCosts().getValue();
-            bpSum += rows.get(i).getTotalCosts().getValue();
-            gSum  += rows.get(i).getTotalCosts().getValue();
+            bpSum += rows.get(i).getBillPrice().getValue();
+            gSum  += rows.get(i).getGain().getValue();
             pmSum += rows.get(i).getProfitMargin().getValue();
         }
         
