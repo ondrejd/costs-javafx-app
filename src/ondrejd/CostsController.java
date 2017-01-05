@@ -466,8 +466,12 @@ public class CostsController implements Initializable {
                     row.setSurface(e.getNewValue());
                     int s = e.getNewValue().getValue();
                     // Calculate work price
+                    int price = (int)(s * getWorkPriceConstant());
+                    if (price < 12000) {
+                        price = 12000;
+                    }
                     ColoredValue.ColorType wpc = row.workPriceProperty().get().getColor();
-                    row.setWorkPrice(new ColoredValue<>((int)(s * getWorkPriceConstant()), wpc));
+                    row.setWorkPrice(new ColoredValue<>(price, wpc));
                     // Calculate pour price
                     ColoredValue.ColorType ppc = row.pourPriceProperty().get().getColor();
                     row.setPourPrice(new ColoredValue<>((int)(s * getPourPriceConstant()), ppc));
@@ -492,13 +496,16 @@ public class CostsController implements Initializable {
             new EventHandler<CellEditEvent<CostDataRow, ColoredValue<Integer>>>() {
                 @Override
                 public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
-                    int price = e.getNewValue().getValue();
-                    if (price < 12000) {
-                        price = 12000;
-                    }
+                    //int price = e.getNewValue().getValue();
+                    //if (price < 12000) {
+                    //    price = 12000;
+                    //}
+                    //CostDataRow row = (CostDataRow) e.getTableView().getItems().get(
+                    //        e.getTablePosition().getRow());
+                    //row.setWorkPrice(new ColoredValue<>(price, row.workPriceProperty().get().getColor()));
                     CostDataRow row = (CostDataRow) e.getTableView().getItems().get(
                             e.getTablePosition().getRow());
-                    row.setWorkPrice(new ColoredValue<>(price, row.workPriceProperty().get().getColor()));
+                    row.setWorkPrice(e.getNewValue());
                     updateSumColumns(row);
                     e.getTableView().refresh();
                     focusTable();
