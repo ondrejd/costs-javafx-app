@@ -23,6 +23,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -103,6 +105,10 @@ public class CostsController implements Initializable {
     private Label gainSum;
     @FXML
     private Label profitMarginSum;
+    @FXML
+    private Menu copyRowMenu;
+    @FXML
+    private Menu moveRowMenu;
     
     @FXML
     private void handleAddRowButtonAction(ActionEvent event) {
@@ -197,14 +203,20 @@ public class CostsController implements Initializable {
     
     @FXML
     private void handleMonthsComboBoxAction(ActionEvent event) {
+        switchMonth(getSelectedMonthIndex());
+    }
+
+    /**
+     * Switch view to given month.
+     * @param month Month index (starting from 0).
+     */
+    private void switchMonth(int month) {
         setConstants();
-        filteredData.setPredicate(n -> {
-            return (n.getMonth() == getSelectedMonthIndex());
-        });
+        filteredData.setPredicate(n -> { return (n.getMonth() == month); });
         updateSumLabels();
         focusTable();
     }
-    
+
     /**
      * Save data to XML file - called from {@link ondrejd.Costs}.
      */
@@ -225,8 +237,16 @@ public class CostsController implements Initializable {
      * @return Index (starting from 0) of currently selected month.
      */
     private int getSelectedMonthIndex() {
+        return getMonthIndex(monthsComboBox.getValue().toString());
+    }
+
+    /**
+     * @param month Month name
+     * @return Index (starting from 0) of given month.
+     */
+    private int getMonthIndex(String month) {
         int idx = 0;
-        switch(monthsComboBox.getValue().toString()) {
+        switch(month) {
             case "Leden"    : idx =  0; break;
             case "Únor"     : idx =  1; break;
             case "Březen"   : idx =  2; break;
@@ -415,6 +435,41 @@ public class CostsController implements Initializable {
         return now.get(java.util.Calendar.YEAR);
     }
 
+    /**
+     * Copy or move selected row to target month.
+     * @param month Name of target month.
+     * @param deleteOriginalRow TRUE for moving (original row will be deleted).
+     */
+    private void copyRowToMonth(String month, boolean deleteOriginalRow) {
+        // 1) Get target month index
+        int monthIdx = getMonthIndex(month);
+        // 2) Remove selected row
+        int idx = table.getSelectionModel().getSelectedIndex();
+        CostDataRow row = (CostDataRow) table.getItems().get(idx);
+        if(deleteOriginalRow == true) {
+            data.remove(row);
+        }
+        // 3) Insert row into target month
+        data.add(new CostDataRow(monthIdx, 
+                row.getPlace().getValue(), 
+                row.getSurface().getValue(), 
+                row.getWorkPrice().getValue(),
+                row.getWireWeight().getValue(),
+                row.getWirePrice().getValue(),
+                row.getPourPrice().getValue(),
+                row.getPaintPrice().getValue(),
+                row.getSheetPrice().getValue(),
+                row.getConcretePrice().getValue(),
+                row.getPumpPrice().getValue(),
+                row.getSquarePrice().getValue(),
+                row.getTotalCosts().getValue(),
+                row.getBillPrice().getValue(),
+                row.getGain().getValue(),
+                row.getProfitMargin().getValue()));
+        // 4) Switch to target month
+        monthsComboBox.getSelectionModel().clearAndSelect(monthIdx);
+    }
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // Initialize user preferences
@@ -426,7 +481,31 @@ public class CostsController implements Initializable {
                 "Srpen", "Září", "Říjen", "Listopad", "Prosinec");
         monthsComboBox.setItems(months);
         monthsComboBox.getSelectionModel().selectFirst();
-        
+
+        // Set up "Copy row" menu
+        months.forEach((month) -> {
+            MenuItem mi = new MenuItem(month);
+            copyRowMenu.getItems().add(mi);
+            mi.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    copyRowToMonth(mi.getText(), false);
+                }
+            });
+        });
+
+        // Set up "Move row" menu
+        months.forEach((month) -> {
+            MenuItem mi = new MenuItem(month);
+            moveRowMenu.getItems().add(mi);
+            mi.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    copyRowToMonth(mi.getText(), true);
+                }
+            });
+        });
+
         // Set up button icons
         Image iconAddRow = new Image("resources/graphics/table_row_insert.png");
         Image iconDelRow = new Image("resources/graphics/table_row_delete.png");

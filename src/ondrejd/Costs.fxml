@@ -41,11 +41,17 @@
                <font>
                   <Font name="System Bold" size="13.0" />
                </font>
+               <tooltip>
+                  <Tooltip text="Obarvit vybrané buňky žlutě" />
+               </tooltip>
             </Button>
             <Button fx:id="redButton" mnemonicParsing="false" onAction="#handleRedButtonAction" text="Č" textFill="RED">
                <font>
                   <Font name="System Bold" size="13.0" />
                </font>
+               <tooltip>
+                  <Tooltip text="Obarvit vybrané buňky červeně" />
+               </tooltip>
             </Button>
          </items>
       </ToolBar>
@@ -70,6 +76,20 @@
          <columnResizePolicy>
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
          </columnResizePolicy>
+         <contextMenu>
+            <ContextMenu>
+              <items>
+                <MenuItem mnemonicParsing="false" text="Přidej řádek" onAction="#handleAddRowButtonAction" />
+                <MenuItem mnemonicParsing="false" text="Odeber řádek" onAction="#handleDelRowButtonAction" />
+                <SeparatorMenuItem mnemonicParsing="false" />
+                <MenuItem mnemonicParsing="false" text="Obarvit žlutě" onAction="#handleYellowButtonAction" />
+                <MenuItem mnemonicParsing="false" text="Obarvit červeně" onAction="#handleRedButtonAction" />
+                <SeparatorMenuItem mnemonicParsing="false" />
+                <Menu fx:id="copyRowMenu" mnemonicParsing="false" text="Zkopírovat řádek" />
+                <Menu fx:id="moveRowMenu" mnemonicParsing="false" text="Přesunout řádek" />
+              </items>
+            </ContextMenu>
+         </contextMenu>
       </TableView>
       <ToolBar prefHeight="40.0" prefWidth="200.0">
          <items>
