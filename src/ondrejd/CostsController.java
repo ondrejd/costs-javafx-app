@@ -14,6 +14,7 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
@@ -57,6 +58,10 @@ public class CostsController implements Initializable {
     private TextField paintPrice;
     @FXML
     private TextField sheetPrice;
+    @FXML
+    private Button undoButton;
+    @FXML
+    private Button redoButton;
     @FXML
     private Button addRowButton;
     @FXML
@@ -109,13 +114,104 @@ public class CostsController implements Initializable {
     private Menu copyRowMenu;
     @FXML
     private Menu moveRowMenu;
+    @FXML
+    private MenuItem undoMenuItem;
+    @FXML
+    private MenuItem redoMenuItem;
+    @FXML
+    private MenuItem addRowMenuItem;
+    @FXML
+    private MenuItem delRowMenuItem;
+
+    /**
+     * Holds actions for undo/redo.
+     */
+    private ObservableList<UndoRedoDataItem> undoRedoQueue = FXCollections.<UndoRedoDataItem>observableArrayList();
+    /**
+     * Holds current undo/redo queue position.
+     */
+    private Integer undoRedoPosition = 0;
+
+    @FXML
+    private void handleUndoButtonAction(ActionEvent event) {
+        if (undoRedoQueue.isEmpty() || undoRedoPosition == 0) {
+            System.out.println("There is no action that can be undone.");
+            return;
+        }
+
+        // Get action that should be undone
+        UndoRedoDataItem action = undoRedoQueue.get(undoRedoPosition - 1);
+
+        // According to action type do what is necessarry
+        if (action.getAction().equals(UndoRedoDataItem.INSERT)) {
+            try {
+                //CostDataRow row = table.getItems().get(action.getOriginalRow());
+                //data.remove(row);
+                data.remove(action.getOriginalData());
+            } catch (IndexOutOfBoundsException e) {
+                // Do nothing...
+            }
+        }
+        else if (action.getAction().equals(UndoRedoDataItem.REMOVE)) {
+            CostDataRow row = action.getOriginalData();
+            try {
+                data.add(action.getOriginalRow(), row);
+            } catch (IndexOutOfBoundsException e) {
+                data.add(row);
+            }
+        }
+        else if (action.getAction().equals(UndoRedoDataItem.UPDATE)) {
+            // ...
+        }
+
+        // Move queue position and update UI
+        undoRedoPosition -= 1;
+        updateUndoRedoUi();
+    }
+
+    @FXML
+    private void handleRedoButtonAction(ActionEvent event) {
+        if (undoRedoQueue.isEmpty() || undoRedoPosition == undoRedoQueue.size()) {
+            System.out.println("There is no action that can be redone.");
+            return;
+        }
+
+        // Get action that should be redone
+        UndoRedoDataItem action = undoRedoQueue.get(undoRedoPosition - 1);
+
+        // According to action type do what is necessarry
+        if (action.getAction().equals(UndoRedoDataItem.INSERT)) {
+            CostDataRow row = action.getOriginalData();
+            try {
+                data.add(action.getOriginalRow(), row);
+            } catch (IndexOutOfBoundsException e) {
+                data.add(row);
+            }
+        }
+        else if (action.getAction().equals(UndoRedoDataItem.REMOVE)) {
+            try {
+                //CostDataRow row = table.getItems().get(action.getOriginalRow());
+                //data.remove(row);
+                data.remove(action.getOriginalData());
+            } catch (IndexOutOfBoundsException e) {
+                // Do nothing...
+            }
+        }
+        else if (action.getAction().equals(UndoRedoDataItem.UPDATE)) {
+            // ...
+        }
+
+        // Move queue position and update UI
+        undoRedoPosition += 1;
+        updateUndoRedoUi();
+    }
     
     @FXML
     private void handleAddRowButtonAction(ActionEvent event) {
         int month = getSelectedMonthIndex();
-        data.add(
-                new CostDataRow(month, "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-        );
+        CostDataRow row = new CostDataRow(month, "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        data.add(row);
+        undoRedoQueue.add(new UndoRedoDataItem(UndoRedoDataItem.INSERT, row, data.size()));
     }
     
     @FXML
@@ -123,6 +219,7 @@ public class CostsController implements Initializable {
         int idx = table.getSelectionModel().getSelectedIndex();
         CostDataRow row = (CostDataRow) table.getItems().get(idx);
         data.remove(row);
+        undoRedoQueue.add(new UndoRedoDataItem(UndoRedoDataItem.REMOVE, row, idx));
     }
     
     @FXML
@@ -507,11 +604,36 @@ public class CostsController implements Initializable {
         });
 
         // Set up button icons
+        Image iconUndo   = new Image("resources/graphics/arrow_undo.png");
+        Image iconRedo   = new Image("resources/graphics/arrow_redo.png");
         Image iconAddRow = new Image("resources/graphics/table_row_insert.png");
         Image iconDelRow = new Image("resources/graphics/table_row_delete.png");
+        undoButton.setGraphic(new ImageView(iconUndo));
+        redoButton.setGraphic(new ImageView(iconRedo));
         addRowButton.setGraphic(new ImageView(iconAddRow));
         delRowButton.setGraphic(new ImageView(iconDelRow));
-        
+
+        // Set up popup menuitems icons
+        undoMenuItem.setGraphic(new ImageView(iconUndo));
+        redoMenuItem.setGraphic(new ImageView(iconRedo));
+        addRowMenuItem.setGraphic(new ImageView(iconAddRow));
+        delRowMenuItem.setGraphic(new ImageView(iconDelRow));
+
+        // Set up undo/redo queue
+        undoRedoQueue.addListener((ListChangeListener<UndoRedoDataItem>) change -> {
+            change.next();
+            if (change.wasAdded() || change.wasRemoved()) {
+                undoRedoPosition = undoRedoQueue.size();
+                updateUndoRedoUi();
+            }
+        });
+
+        // Disable undo/redo buttons/menuitems immediately because queue is empty
+        undoButton.setDisable(true);
+        redoButton.setDisable(true);
+        undoMenuItem.setDisable(true);
+        redoMenuItem.setDisable(true);
+
         // Load data
         data = XmlDataSource.loadData(getCurrentYear());
         
@@ -824,7 +946,7 @@ public class CostsController implements Initializable {
             });
         });
         
-        // ....
+        // Set on key pressed event handler for data table
         table.setOnKeyPressed(event -> {
             TablePosition<CostDataRow, ?> pos = table.getFocusModel().getFocusedCell() ;
             if (pos != null) {
@@ -871,5 +993,105 @@ public class CostsController implements Initializable {
         billPriceSum.setText(String.format("%,d Kč", bpSum));
         gainSum.setText(String.format("%,d Kč", gSum));
         profitMarginSum.setText(String.format("%,d %%", pmSum));
+    }
+
+    /**
+     * Holds invormations about action for undo/redo.
+     */
+    private class UndoRedoDataItem {
+        // All possible actions (with additional "unknown" action).
+        public static final String INSERT  = "insert";
+        public static final String REMOVE  = "remove";
+        public static final String UPDATE  = "update";
+        public static final String UNKNOWN = "unknown";
+
+        private String action;
+        private CostDataRow originalData;
+        private CostDataRow updatedData;
+        private Integer originalRow;
+        private Integer updatedRow;
+
+        public UndoRedoDataItem(String action) {
+            setAction(action);
+        }
+
+        public UndoRedoDataItem(String action, CostDataRow originalData) {
+            setAction(action);
+            this.originalData = originalData;
+        }
+
+        public UndoRedoDataItem(String action, CostDataRow originalData, Integer originalRow) {
+            setAction(action);
+            this.originalData = originalData;
+            this.originalRow = originalRow;
+        }
+
+        public UndoRedoDataItem(String action, CostDataRow originalData, 
+                Integer originalRow, CostDataRow updatedData, Integer updatedRow) {
+            setAction(action);
+            this.originalData = originalData;
+            this.originalRow = originalRow;
+            this.updatedData = updatedData;
+            this.updatedRow = updatedRow;
+        }
+
+        public String getAction() {
+            return action;
+        }
+
+        public final void setAction(String action) {
+            if ( !action.equals(INSERT) && !action.equals(REMOVE) && !action.equals(UPDATE)) {
+                this.action = UNKNOWN;
+                return;
+            }
+            this.action = action;
+        }
+
+        public CostDataRow getOriginalData() {
+            return originalData;
+        }
+
+        public Integer getOriginalRow() {
+            return originalRow;
+        }
+
+        public CostDataRow getUpdatedData() {
+            return updatedData;
+        }
+
+        public Integer getUpdatedRow() {
+            return updatedRow;
+        }
+    }
+
+    /**
+     * Updates buttons and menuitems related to undo/redo actions.
+     */
+    private void updateUndoRedoUi() {
+        if (undoRedoPosition > undoRedoQueue.size()) {
+            undoRedoPosition = undoRedoQueue.size();
+        }
+        else if (undoRedoPosition < 0) {
+            undoRedoPosition = 0;
+        }
+        if (undoRedoQueue.isEmpty()) {
+            undoButton.setDisable(true);
+            redoButton.setDisable(true);
+            undoMenuItem.setDisable(true);
+            redoMenuItem.setDisable(true);
+        }
+        else {
+            boolean undoDisabled = (undoRedoPosition == 0);
+            boolean redoDisabled = ! (undoRedoQueue.size() >= undoRedoPosition);
+
+            undoButton.setDisable(undoDisabled);
+            redoButton.setDisable(redoDisabled);
+            undoMenuItem.setDisable(undoDisabled);
+            redoMenuItem.setDisable(redoDisabled);
+        }
+        // TODO Remove this!
+        System.out.println("Current items in undo/redo queue is " +
+                undoRedoQueue.size() + ". Current position is " +
+                undoRedoPosition + ".");
     }
 }

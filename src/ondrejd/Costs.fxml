@@ -13,11 +13,19 @@
    <children>
       <ToolBar prefHeight="40.0" prefWidth="200.0">
          <items>
+            <Button fx:id="undoButton" mnemonicParsing="false" onAction="#handleUndoButtonAction">
+               <tooltip>
+                  <Tooltip text="Vrátit poslední změny" />
+               </tooltip>
+            </Button>
+            <Button fx:id="redoButton" mnemonicParsing="false" onAction="#handleRedoButtonAction">
+               <tooltip>
+                  <Tooltip text="Opakovat změny" />
+               </tooltip>
+            </Button>
+            <Separator prefWidth="20.0" />
             <ComboBox fx:id="monthsComboBox" onAction="#handleMonthsComboBoxAction" prefWidth="150.0" />
             <Button fx:id="addRowButton" mnemonicParsing="false" onAction="#handleAddRowButtonAction">
-               <font>
-                  <Font name="System Bold" size="13.0" />
-               </font>
                <tooltip>
                   <Tooltip text="Přidej řádek" />
                </tooltip>
@@ -79,11 +87,14 @@
          <contextMenu>
             <ContextMenu>
               <items>
-                <MenuItem mnemonicParsing="false" text="Přidej řádek" onAction="#handleAddRowButtonAction" />
-                <MenuItem mnemonicParsing="false" text="Odeber řádek" onAction="#handleDelRowButtonAction" />
+                <MenuItem fx:id="undoMenuItem" mnemonicParsing="false" onAction="#handleUndoButtonAction" text="Vrátit změny" />
+                <MenuItem fx:id="redoMenuItem" mnemonicParsing="false" onAction="#handleRedoButtonAction" text="Opakovat změny" />
                 <SeparatorMenuItem mnemonicParsing="false" />
-                <MenuItem mnemonicParsing="false" text="Obarvit žlutě" onAction="#handleYellowButtonAction" />
-                <MenuItem mnemonicParsing="false" text="Obarvit červeně" onAction="#handleRedButtonAction" />
+                <MenuItem fx:id="addRowMenuItem" mnemonicParsing="false" onAction="#handleAddRowButtonAction" text="Přidej řádek" />
+                <MenuItem fx:id="delRowMenuItem" mnemonicParsing="false" onAction="#handleDelRowButtonAction" text="Odeber řádek" />
+                <SeparatorMenuItem mnemonicParsing="false" />
+                <MenuItem mnemonicParsing="false" onAction="#handleYellowButtonAction" text="Obarvit žlutě" />
+                <MenuItem mnemonicParsing="false" onAction="#handleRedButtonAction" text="Obarvit červeně" />
                 <SeparatorMenuItem mnemonicParsing="false" />
                 <Menu fx:id="copyRowMenu" mnemonicParsing="false" text="Zkopírovat řádek" />
                 <Menu fx:id="moveRowMenu" mnemonicParsing="false" text="Přesunout řádek" />
