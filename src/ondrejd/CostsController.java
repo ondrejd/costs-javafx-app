@@ -7,6 +7,7 @@
 package ondrejd;
 
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.Function;
 import java.util.prefs.*;
@@ -21,7 +22,10 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
@@ -218,8 +222,21 @@ public class CostsController implements Initializable {
     private void handleDelRowButtonAction(ActionEvent event) {
         int idx = table.getSelectionModel().getSelectedIndex();
         CostDataRow row = (CostDataRow) table.getItems().get(idx);
-        data.remove(row);
-        undoRedoQueue.add(new UndoRedoDataItem(UndoRedoDataItem.REMOVE, row, idx));
+
+        /**
+         * @see http://code.makery.ch/blog/javafx-dialogs-official/
+         */
+        Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle("Smazat řádek");
+        alert.setHeaderText("Potvrďte smazání vybraného řádku.");
+        alert.setContentText("Skutečně chcete smazat řádek číslo " + idx + "?");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK){
+            data.remove(row);
+            // TODO Row index is from selection (current table view) not from data!!!
+            undoRedoQueue.add(new UndoRedoDataItem(UndoRedoDataItem.REMOVE, row, idx));
+        }
     }
     
     @FXML
