@@ -7,6 +7,7 @@
 package ondrejd;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.Function;
@@ -43,6 +44,8 @@ import javafx.scene.image.ImageView;
 import javafx.util.StringConverter;
 
 public class CostsController implements Initializable {
+    public enum UndoActions { INSERT, REMOVE, UPDATE, COLOR, COPY, MOVE, MOVEDOWN, MOVEUP };
+
     private static final String SELECTED_MONTH = "selected_month";
     private static final Integer SELECTED_MONTH_DEFAULT = 0;
 
@@ -64,8 +67,6 @@ public class CostsController implements Initializable {
     private TextField sheetPrice;
     @FXML
     private Button undoButton;
-    @FXML
-    private Button redoButton;
     @FXML
     private Button addRowButton;
     @FXML
@@ -121,105 +122,121 @@ public class CostsController implements Initializable {
     @FXML
     private MenuItem undoMenuItem;
     @FXML
-    private MenuItem redoMenuItem;
-    @FXML
     private MenuItem addRowMenuItem;
     @FXML
     private MenuItem delRowMenuItem;
+    @FXML
+    private MenuItem colorRedMenuItem;
+    @FXML
+    private MenuItem colorYellowMenuItem;
+    @FXML
+    private MenuItem moveRowDownMenuItem;
+    @FXML
+    private MenuItem moveRowUpMenuItem;
 
     /**
-     * Holds actions for undo/redo.
+     * Holds actions for undo.
      */
-    private ObservableList<UndoRedoDataItem> undoRedoQueue = FXCollections.<UndoRedoDataItem>observableArrayList();
+    private ObservableList<UndoAction> undo = FXCollections.<UndoAction>observableArrayList();
+
     /**
-     * Holds current undo/redo queue position.
+     * @param first Index of the first row to swap (in table view).
+     * @param second Index of the second row to swap (in table view)
      */
-    private Integer undoRedoPosition = 0;
+    private void swapDataRows(Integer first, Integer second) {
+        CostDataRow firstRow = (CostDataRow) table.getItems().get(first);
+        CostDataRow secondRow = (CostDataRow) table.getItems().get(second);
+
+        int firstIndex = data.indexOf(firstRow);
+        int secondIndex = data.indexOf(secondRow);
+
+        java.util.Collections.swap(data, firstIndex, secondIndex);
+    }
 
     @FXML
-    private void handleUndoButtonAction(ActionEvent event) {
-        if (undoRedoQueue.isEmpty() || undoRedoPosition == 0) {
+    private void handleUndoAction(ActionEvent event) {
+        if (undo.isEmpty()) {
             System.out.println("There is no action that can be undone.");
             return;
         }
 
-        // Get action that should be undone
-        UndoRedoDataItem action = undoRedoQueue.get(undoRedoPosition - 1);
+        UndoAction action = undo.remove(undo.size() - 1);
 
-        // According to action type do what is necessarry
-        if (action.getAction().equals(UndoRedoDataItem.INSERT)) {
-            try {
-                //CostDataRow row = table.getItems().get(action.getOriginalRow());
-                //data.remove(row);
-                data.remove(action.getOriginalData());
-            } catch (IndexOutOfBoundsException e) {
-                // Do nothing...
-            }
+        if (action.getType().equals(UndoActions.INSERT) || action.getType().equals(UndoActions.COPY)) {
+            data.remove(action.getOriginalData());
+            //switchMonth(action.getOriginalData().getMonth());
         }
-        else if (action.getAction().equals(UndoRedoDataItem.REMOVE)) {
-            CostDataRow row = action.getOriginalData();
-            try {
-                data.add(action.getOriginalRow(), row);
-            } catch (IndexOutOfBoundsException e) {
-                data.add(row);
-            }
+        else if (action.getType().equals(UndoActions.REMOVE)) {
+            data.add(action.getOriginalData());
+            //switchMonth(action.getOriginalData().getMonth());
         }
-        else if (action.getAction().equals(UndoRedoDataItem.UPDATE)) {
-            // ...
+        else if (action.getType().equals(UndoActions.UPDATE)) {
+            // XXX ...
+        }
+        else if (action.getType().equals(UndoActions.COLOR)) {
+            action.getColorChanges().forEach(change -> {
+                CostDataRow row = table.getItems().get(change.getRow());
+
+                if (change.getColumn().equals(placeTCol.getId())) {
+                    row.getPlace().setColor(change.getOldColor());
+                } else if (change.getColumn().equals(surfaceTCol.getId())) {
+                    row.getSurface().setColor(change.getOldColor());
+                } else if (change.getColumn().equals(workPriceTCol.getId())) {
+                    row.getWorkPrice().setColor(change.getOldColor());
+                } else if (change.getColumn().equals(wireWeightTCol.getId())) {
+                    row.getWireWeight().setColor(change.getOldColor());
+                } else if (change.getColumn().equals(wirePriceTCol.getId())) {
+                    row.getWirePrice().setColor(change.getOldColor());
+                } else if (change.getColumn().equals(pourPriceTCol.getId())) {
+                    row.getPourPrice().setColor(change.getOldColor());
+                } else if (change.getColumn().equals(paintPriceTCol.getId())) {
+                    row.getPaintPrice().setColor(change.getOldColor());
+                } else if (change.getColumn().equals(sheetPriceTCol.getId())) {
+                    row.getSheetPrice().setColor(change.getOldColor());
+                } else if (change.getColumn().equals(concretePriceTCol.getId())) {
+                    row.getConcretePrice().setColor(change.getOldColor());
+                } else if (change.getColumn().equals(pumpPriceTCol.getId())) {
+                    row.getPumpPrice().setColor(change.getOldColor());
+                } else if (change.getColumn().equals(squarePriceTCol.getId())) {
+                    row.getSquarePrice().setColor(change.getOldColor());
+                } else if (change.getColumn().equals(totalCostsTCol.getId())) {
+                    row.getTotalCosts().setColor(change.getOldColor());
+                } else if (change.getColumn().equals(billPriceTCol.getId())) {
+                    row.getBillPrice().setColor(change.getOldColor());
+                } else if (change.getColumn().equals(gainTCol.getId())) {
+                    row.getGain().setColor(change.getOldColor());
+                } else if (change.getColumn().equals(profitMarginTCol.getId())) {
+                    row.getProfitMargin().setColor(change.getOldColor());
+                }
+            });
+        }
+        else if (action.getType().equals(UndoActions.MOVE)) {
+            data.remove(action.getUpdatedData());
+            data.add(action.getOriginalData());
+            //switchMonth(action.getOriginalData().getMonth());
+        }
+        else if (action.getType().equals(UndoActions.MOVEDOWN)) {
+            switchMonth(action.getMonth());
+            swapDataRows(action.getUpdatedRow() + 1, action.getOriginalRow() + 1);
+        }
+        else if (action.getType().equals(UndoActions.MOVEUP)) {
+            switchMonth(action.getMonth());
+            swapDataRows(action.getUpdatedRow() - 1, action.getOriginalRow() - 1);
         }
 
-        // Move queue position and update UI
-        undoRedoPosition -= 1;
-        updateUndoRedoUi();
-    }
-
-    @FXML
-    private void handleRedoButtonAction(ActionEvent event) {
-        if (undoRedoQueue.isEmpty() || undoRedoPosition == undoRedoQueue.size()) {
-            System.out.println("There is no action that can be redone.");
-            return;
-        }
-
-        // Get action that should be redone
-        UndoRedoDataItem action = undoRedoQueue.get(undoRedoPosition - 1);
-
-        // According to action type do what is necessarry
-        if (action.getAction().equals(UndoRedoDataItem.INSERT)) {
-            CostDataRow row = action.getOriginalData();
-            try {
-                data.add(action.getOriginalRow(), row);
-            } catch (IndexOutOfBoundsException e) {
-                data.add(row);
-            }
-        }
-        else if (action.getAction().equals(UndoRedoDataItem.REMOVE)) {
-            try {
-                //CostDataRow row = table.getItems().get(action.getOriginalRow());
-                //data.remove(row);
-                data.remove(action.getOriginalData());
-            } catch (IndexOutOfBoundsException e) {
-                // Do nothing...
-            }
-        }
-        else if (action.getAction().equals(UndoRedoDataItem.UPDATE)) {
-            // ...
-        }
-
-        // Move queue position and update UI
-        undoRedoPosition += 1;
-        updateUndoRedoUi();
+        updateUndoUi();
     }
     
     @FXML
-    private void handleAddRowButtonAction(ActionEvent event) {
+    private void handleAddRowAction(ActionEvent event) {
         int month = getSelectedMonthIndex();
         CostDataRow row = new CostDataRow(month, "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         data.add(row);
-        undoRedoQueue.add(new UndoRedoDataItem(UndoRedoDataItem.INSERT, row, data.size()));
+        undo.add(new UndoAction(UndoActions.INSERT, row));
     }
     
     @FXML
-    private void handleDelRowButtonAction(ActionEvent event) {
+    private void handleDelRowAction(ActionEvent event) {
         int idx = table.getSelectionModel().getSelectedIndex();
         CostDataRow row = (CostDataRow) table.getItems().get(idx);
 
@@ -234,85 +251,150 @@ public class CostsController implements Initializable {
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK){
             data.remove(row);
-            // TODO Row index is from selection (current table view) not from data!!!
-            undoRedoQueue.add(new UndoRedoDataItem(UndoRedoDataItem.REMOVE, row, idx));
+            undo.add(new UndoAction(UndoActions.REMOVE, row, idx));
         }
     }
     
     @FXML
+    private void handleMoveRowDownAction(ActionEvent event) {
+        int idx = table.getSelectionModel().getSelectedIndex();
+        int month = table.getItems().get(idx).getMonth();
+        if (idx < table.getItems().size() - 1) {
+            swapDataRows(idx, idx + 1);
+        }
+        undo.add(new UndoAction(UndoActions.MOVEDOWN, getSelectedMonthIndex(), idx, idx - 1));
+    }
+    
+    @FXML
+    private void handleMoveRowUpAction(ActionEvent event) {
+        int idx = table.getSelectionModel().getSelectedIndex();
+        if (idx > 0) {
+            swapDataRows(idx, idx - 1);
+        }
+        undo.add(new UndoAction(UndoActions.MOVEUP, getSelectedMonthIndex(), idx, idx + 1));
+    }
+
+    @FXML
     private void handleYellowButtonAction(ActionEvent event) {
+        ArrayList<ColorChange> changes = new <ColorChange>ArrayList();
+
         table.getSelectionModel().getSelectedCells().forEach((pos) -> {
-            CostDataRow cdr = table.getItems().get(pos.getRow());
+            CostDataRow row = table.getItems().get(pos.getRow());
+            ColoredValue.ColorType oldColor = null;
+            ColoredValue.ColorType newColor = ColoredValue.ColorType.YELLOW;
+            
             if (pos.getTableColumn() == placeTCol) {
-                cdr.getPlace().setColor(ColoredValue.ColorType.YELLOW);
+                oldColor = row.getSurface().getColor();
+                row.getPlace().setColor(newColor);
             } else if (pos.getTableColumn() == surfaceTCol) {
-                cdr.getSurface().setColor(ColoredValue.ColorType.YELLOW);
+                oldColor = row.getSurface().getColor();
+                row.getSurface().setColor(newColor);
             } else if (pos.getTableColumn() == workPriceTCol) {
-                cdr.getWorkPrice().setColor(ColoredValue.ColorType.YELLOW);
+                oldColor = row.getWorkPrice().getColor();
+                row.getWorkPrice().setColor(newColor);
             } else if (pos.getTableColumn() == wireWeightTCol) {
-                cdr.getWireWeight().setColor(ColoredValue.ColorType.YELLOW);
+                oldColor = row.getWireWeight().getColor();
+                row.getWireWeight().setColor(newColor);
             } else if (pos.getTableColumn() == wirePriceTCol) {
-                cdr.getWirePrice().setColor(ColoredValue.ColorType.YELLOW);
+                oldColor = row.getWirePrice().getColor();
+                row.getWirePrice().setColor(newColor);
             } else if (pos.getTableColumn() == pourPriceTCol) {
-                cdr.getPourPrice().setColor(ColoredValue.ColorType.YELLOW);
+                oldColor = row.getPourPrice().getColor();
+                row.getPourPrice().setColor(newColor);
             } else if (pos.getTableColumn() == paintPriceTCol) {
-                cdr.getPaintPrice().setColor(ColoredValue.ColorType.YELLOW);
+                oldColor = row.getPaintPrice().getColor();
+                row.getPaintPrice().setColor(newColor);
             } else if (pos.getTableColumn() == sheetPriceTCol) {
-                cdr.getSheetPrice().setColor(ColoredValue.ColorType.YELLOW);
+                oldColor = row.getSheetPrice().getColor();
+                row.getSheetPrice().setColor(newColor);
             } else if (pos.getTableColumn() == concretePriceTCol) {
-                cdr.getConcretePrice().setColor(ColoredValue.ColorType.YELLOW);
+                oldColor = row.getConcretePrice().getColor();
+                row.getConcretePrice().setColor(newColor);
             } else if (pos.getTableColumn() == pumpPriceTCol) {
-                cdr.getPumpPrice().setColor(ColoredValue.ColorType.YELLOW);
+                oldColor = row.getPumpPrice().getColor();
+                row.getPumpPrice().setColor(newColor);
             } else if (pos.getTableColumn() == squarePriceTCol) {
-                cdr.getSquarePrice().setColor(ColoredValue.ColorType.YELLOW);
+                oldColor = row.getSquarePrice().getColor();
+                row.getSquarePrice().setColor(newColor);
             } else if (pos.getTableColumn() == totalCostsTCol) {
-                cdr.getTotalCosts().setColor(ColoredValue.ColorType.YELLOW);
+                oldColor = row.getTotalCosts().getColor();
+                row.getTotalCosts().setColor(newColor);
             } else if (pos.getTableColumn() == billPriceTCol) {
-                cdr.getBillPrice().setColor(ColoredValue.ColorType.YELLOW);
+                oldColor = row.getBillPrice().getColor();
+                row.getBillPrice().setColor(newColor);
             } else if (pos.getTableColumn() == gainTCol) {
-                cdr.getGain().setColor(ColoredValue.ColorType.YELLOW);
-            } else if (pos.getTableColumn() == profitMarginTCol) {
-                cdr.getProfitMargin().setColor(ColoredValue.ColorType.YELLOW);
+                oldColor = row.getGain().getColor();
+                row.getGain().setColor(newColor);
+            } else if (pos.getTableColumn().getId().equals(profitMarginTCol.getId())) {
+                oldColor = row.getProfitMargin().getColor();
+                row.getProfitMargin().setColor(newColor);
             }
+
+            changes.add(new ColorChange(pos.getRow(), pos.getTableColumn().getId(), oldColor, newColor));
         });
+
+        undo.add(new UndoAction(UndoActions.COLOR, changes));
     }
     
     @FXML
     private void handleRedButtonAction(ActionEvent event) {
+        ArrayList<ColorChange> changes = new <ColorChange>ArrayList();
+
         table.getSelectionModel().getSelectedCells().forEach((pos) -> {
-            CostDataRow cdr = table.getItems().get(pos.getRow());
+            CostDataRow row = table.getItems().get(pos.getRow());
+            ColoredValue.ColorType oldColor = null;
+            ColoredValue.ColorType newColor = ColoredValue.ColorType.RED;
+            
             if (pos.getTableColumn() == placeTCol) {
-                cdr.getPlace().setColor(ColoredValue.ColorType.RED);
+                oldColor = row.getPlace().getColor();
+                row.getPlace().setColor(newColor);
             } else if (pos.getTableColumn() == surfaceTCol) {
-                cdr.getSurface().setColor(ColoredValue.ColorType.RED);
+                oldColor = row.getSurface().getColor();
+                row.getSurface().setColor(newColor);
             } else if (pos.getTableColumn() == workPriceTCol) {
-                cdr.getWorkPrice().setColor(ColoredValue.ColorType.RED);
+                oldColor = row.getWorkPrice().getColor();
+                row.getWorkPrice().setColor(newColor);
             } else if (pos.getTableColumn() == wireWeightTCol) {
-                cdr.getWireWeight().setColor(ColoredValue.ColorType.RED);
+                oldColor = row.getWireWeight().getColor();
+                row.getWireWeight().setColor(newColor);
             } else if (pos.getTableColumn() == wirePriceTCol) {
-                cdr.getWirePrice().setColor(ColoredValue.ColorType.RED);
+                oldColor = row.getWirePrice().getColor();
+                row.getWirePrice().setColor(newColor);
             } else if (pos.getTableColumn() == pourPriceTCol) {
-                cdr.getPourPrice().setColor(ColoredValue.ColorType.RED);
+                oldColor = row.getPourPrice().getColor();
+                row.getPourPrice().setColor(newColor);
             } else if (pos.getTableColumn() == paintPriceTCol) {
-                cdr.getPaintPrice().setColor(ColoredValue.ColorType.RED);
+                oldColor = row.getPaintPrice().getColor();
+                row.getPaintPrice().setColor(newColor);
             } else if (pos.getTableColumn() == sheetPriceTCol) {
-                cdr.getSheetPrice().setColor(ColoredValue.ColorType.RED);
+                oldColor = row.getSheetPrice().getColor();
+                row.getSheetPrice().setColor(newColor);
             } else if (pos.getTableColumn() == concretePriceTCol) {
-                cdr.getConcretePrice().setColor(ColoredValue.ColorType.RED);
+                oldColor = row.getConcretePrice().getColor();
+                row.getConcretePrice().setColor(newColor);
             } else if (pos.getTableColumn() == pumpPriceTCol) {
-                cdr.getPumpPrice().setColor(ColoredValue.ColorType.RED);
+                oldColor = row.getPumpPrice().getColor();
+                row.getPumpPrice().setColor(newColor);
             } else if (pos.getTableColumn() == squarePriceTCol) {
-                cdr.getSquarePrice().setColor(ColoredValue.ColorType.RED);
+                oldColor = row.getSquarePrice().getColor();
+                row.getSquarePrice().setColor(newColor);
             } else if (pos.getTableColumn() == totalCostsTCol) {
-                cdr.getTotalCosts().setColor(ColoredValue.ColorType.RED);
+                oldColor = row.getTotalCosts().getColor();
+                row.getTotalCosts().setColor(newColor);
             } else if (pos.getTableColumn() == billPriceTCol) {
-                cdr.getBillPrice().setColor(ColoredValue.ColorType.RED);
+                oldColor = row.getBillPrice().getColor();
+                row.getBillPrice().setColor(newColor);
             } else if (pos.getTableColumn() == gainTCol) {
-                cdr.getGain().setColor(ColoredValue.ColorType.RED);
-            } else if (pos.getTableColumn() == profitMarginTCol) {
-                cdr.getProfitMargin().setColor(ColoredValue.ColorType.RED);
+                oldColor = row.getGain().getColor();
+                row.getGain().setColor(newColor);
+            } else if (pos.getTableColumn().getId().equals(profitMarginTCol.getId())) {
+                oldColor = row.getProfitMargin().getColor();
+                row.getProfitMargin().setColor(newColor);
             }
+
+            changes.add(new ColorChange(pos.getRow(), pos.getTableColumn().getId(), oldColor, newColor));
         });
+        undo.add(new UndoAction(UndoActions.COLOR, changes));
     }
     
     @FXML
@@ -559,29 +641,36 @@ public class CostsController implements Initializable {
         int monthIdx = getMonthIndex(month);
         // 2) Remove selected row
         int idx = table.getSelectionModel().getSelectedIndex();
-        CostDataRow row = (CostDataRow) table.getItems().get(idx);
+        CostDataRow oldRow = (CostDataRow) table.getItems().get(idx);
         if(deleteOriginalRow == true) {
-            data.remove(row);
+            data.remove(oldRow);
         }
         // 3) Insert row into target month
-        data.add(new CostDataRow(monthIdx, 
-                row.getPlace().getValue(), 
-                row.getSurface().getValue(), 
-                row.getWorkPrice().getValue(),
-                row.getWireWeight().getValue(),
-                row.getWirePrice().getValue(),
-                row.getPourPrice().getValue(),
-                row.getPaintPrice().getValue(),
-                row.getSheetPrice().getValue(),
-                row.getConcretePrice().getValue(),
-                row.getPumpPrice().getValue(),
-                row.getSquarePrice().getValue(),
-                row.getTotalCosts().getValue(),
-                row.getBillPrice().getValue(),
-                row.getGain().getValue(),
-                row.getProfitMargin().getValue()));
+        CostDataRow newRow = new CostDataRow(monthIdx, 
+                oldRow.getPlace().getValue(), 
+                oldRow.getSurface().getValue(), 
+                oldRow.getWorkPrice().getValue(),
+                oldRow.getWireWeight().getValue(),
+                oldRow.getWirePrice().getValue(),
+                oldRow.getPourPrice().getValue(),
+                oldRow.getPaintPrice().getValue(),
+                oldRow.getSheetPrice().getValue(),
+                oldRow.getConcretePrice().getValue(),
+                oldRow.getPumpPrice().getValue(),
+                oldRow.getSquarePrice().getValue(),
+                oldRow.getTotalCosts().getValue(),
+                oldRow.getBillPrice().getValue(),
+                oldRow.getGain().getValue(),
+                oldRow.getProfitMargin().getValue());
+        data.add(newRow);
         // 4) Switch to target month
         monthsComboBox.getSelectionModel().clearAndSelect(monthIdx);
+        // 5) Add action to undo queue
+        if (deleteOriginalRow != true) {
+            undo.add(new UndoAction(UndoActions.COPY, newRow));
+        } else {
+            undo.add(new UndoAction(UndoActions.MOVE, oldRow, newRow));
+        }
     }
     
     @Override
@@ -622,34 +711,35 @@ public class CostsController implements Initializable {
 
         // Set up button icons
         Image iconUndo   = new Image("resources/graphics/arrow_undo.png");
-        Image iconRedo   = new Image("resources/graphics/arrow_redo.png");
+        Image iconDown   = new Image("resources/graphics/arrow_down.png");
+        Image iconUp     = new Image("resources/graphics/arrow_up.png");
         Image iconAddRow = new Image("resources/graphics/table_row_insert.png");
         Image iconDelRow = new Image("resources/graphics/table_row_delete.png");
+        Image iconRed    = new Image("resources/graphics/tag_red.png");
+        Image iconYellow = new Image("resources/graphics/tag_yellow.png");
         undoButton.setGraphic(new ImageView(iconUndo));
-        redoButton.setGraphic(new ImageView(iconRedo));
         addRowButton.setGraphic(new ImageView(iconAddRow));
         delRowButton.setGraphic(new ImageView(iconDelRow));
+        redButton.setGraphic(new ImageView(iconRed));
+        yellowButton.setGraphic(new ImageView(iconYellow));
 
         // Set up popup menuitems icons
         undoMenuItem.setGraphic(new ImageView(iconUndo));
-        redoMenuItem.setGraphic(new ImageView(iconRedo));
+        moveRowDownMenuItem.setGraphic(new ImageView(iconDown));
+        moveRowUpMenuItem.setGraphic(new ImageView(iconUp));
         addRowMenuItem.setGraphic(new ImageView(iconAddRow));
         delRowMenuItem.setGraphic(new ImageView(iconDelRow));
+        colorRedMenuItem.setGraphic(new ImageView(iconRed));
+        colorYellowMenuItem.setGraphic(new ImageView(iconYellow));
 
         // Set up undo/redo queue
-        undoRedoQueue.addListener((ListChangeListener<UndoRedoDataItem>) change -> {
-            change.next();
-            if (change.wasAdded() || change.wasRemoved()) {
-                undoRedoPosition = undoRedoQueue.size();
-                updateUndoRedoUi();
-            }
-        });
+        undo.addListener((ListChangeListener<UndoAction>) change -> { updateUndoUi(); });
 
         // Disable undo/redo buttons/menuitems immediately because queue is empty
         undoButton.setDisable(true);
-        redoButton.setDisable(true);
+        //redoButton.setDisable(true);
         undoMenuItem.setDisable(true);
-        redoMenuItem.setDisable(true);
+        //redoMenuItem.setDisable(true);
 
         // Load data
         data = XmlDataSource.loadData(getCurrentYear());
@@ -1015,53 +1105,112 @@ public class CostsController implements Initializable {
     /**
      * Holds invormations about action for undo/redo.
      */
-    private class UndoRedoDataItem {
-        // All possible actions (with additional "unknown" action).
-        public static final String INSERT  = "insert";
-        public static final String REMOVE  = "remove";
-        public static final String UPDATE  = "update";
-        public static final String UNKNOWN = "unknown";
+    private class UndoAction {
+        private final UndoActions type;
+        private final Integer month;
+        private final CostDataRow originalData;
+        private final CostDataRow updatedData;
+        private final Integer originalRow;
+        private final Integer updatedRow;
+        private final ArrayList<ColorChange> colorChanges;
 
-        private String action;
-        private CostDataRow originalData;
-        private CostDataRow updatedData;
-        private Integer originalRow;
-        private Integer updatedRow;
-
-        public UndoRedoDataItem(String action) {
-            setAction(action);
-        }
-
-        public UndoRedoDataItem(String action, CostDataRow originalData) {
-            setAction(action);
-            this.originalData = originalData;
-        }
-
-        public UndoRedoDataItem(String action, CostDataRow originalData, Integer originalRow) {
-            setAction(action);
-            this.originalData = originalData;
-            this.originalRow = originalRow;
-        }
-
-        public UndoRedoDataItem(String action, CostDataRow originalData, 
-                Integer originalRow, CostDataRow updatedData, Integer updatedRow) {
-            setAction(action);
-            this.originalData = originalData;
-            this.originalRow = originalRow;
-            this.updatedData = updatedData;
-            this.updatedRow = updatedRow;
-        }
-
-        public String getAction() {
-            return action;
-        }
-
-        public final void setAction(String action) {
-            if ( !action.equals(INSERT) && !action.equals(REMOVE) && !action.equals(UPDATE)) {
-                this.action = UNKNOWN;
-                return;
+        /**
+         * Constructs action type INSERT.
+         * @param type Action's type.
+         * @param originalData Original data row.
+         * @throws IllegalArgumentException
+         */
+        public UndoAction(UndoActions type, CostDataRow originalData) {
+            if (!type.equals(UndoActions.INSERT) && !type.equals(UndoActions.COPY)) {
+                throw new IllegalArgumentException("Action type should be INSERT or COPY!");
             }
-            this.action = action;
+            this.type = type;
+            this.month = null;
+            this.originalData = originalData;
+            this.updatedData = null;
+            this.originalRow = null;
+            this.updatedRow = null;
+            this.colorChanges = null;
+        }
+
+        /**
+         * Constructs action type REMOVE.
+         * @param type Action's type.
+         * @param originalData Original data row.
+         * @param originalRow Original row's index.
+         * @throws IllegalArgumentException
+         */
+        public UndoAction(UndoActions type, CostDataRow originalData, Integer originalRow) {
+            if (!type.equals(UndoActions.REMOVE)) {
+                throw new IllegalArgumentException("Action type should be REMOVE!");
+            }
+            this.type = type;
+            this.month = null;
+            this.originalData = originalData;
+            this.updatedData = null;
+            this.originalRow = originalRow;
+            this.updatedRow = null;
+            this.colorChanges = null;
+        }
+
+        public UndoAction(UndoActions type, int month, int originalRow, int updatedRow) {
+            if (!type.equals(UndoActions.MOVEDOWN) && !type.equals(UndoActions.MOVEUP)) {
+                throw new IllegalArgumentException("Action type should be REMOVE!");
+            }
+            this.type = type;
+            this.month = month;
+            this.originalData = null;
+            this.updatedData = null;
+            this.originalRow = originalRow;
+            this.updatedRow = updatedRow;
+            this.colorChanges = null;
+        }
+
+        /**
+         * Constructs action type MOVE.
+         * @param type Action's type.
+         * @param originalData Original data row.
+         * @param updatedData Updated data row.
+         * @throws IllegalArgumentException
+         */
+        public UndoAction(UndoActions type, CostDataRow originalData, CostDataRow updatedData) {
+            if (!type.equals(UndoActions.MOVE)) {
+                throw new IllegalArgumentException("Action type should be MOVE!");
+            }
+            this.type = type;
+            this.month = null;
+            this.originalData = originalData;
+            this.originalRow = null;
+            this.updatedData = updatedData;
+            this.updatedRow = null;
+            this.colorChanges = null;
+        }
+
+        /**
+         * Constructs action type COLOR.
+         * @param type Action's type.
+         * @param colorChanges Color changes.
+         * @throws IllegalArgumentException
+         */
+        public UndoAction(UndoActions type, ArrayList<ColorChange> colorChanges) {
+            if (!type.equals(UndoActions.COLOR)) {
+                throw new IllegalArgumentException("Action type should be COLOR!");
+            }
+            this.type = type;
+            this.month = null;
+            this.originalData = null;
+            this.updatedData = null;
+            this.originalRow = null;
+            this.updatedRow = null;
+            this.colorChanges = colorChanges;
+        }
+
+        public UndoActions getType() {
+            return type;
+        }
+
+        public Integer getMonth() {
+            return month;
         }
 
         public CostDataRow getOriginalData() {
@@ -1079,36 +1228,47 @@ public class CostsController implements Initializable {
         public Integer getUpdatedRow() {
             return updatedRow;
         }
+
+        public ArrayList<ColorChange> getColorChanges() {
+            return colorChanges;
+        }
+    }
+
+    /**
+     * Helper class that holds record about color change (because of undo).
+     */
+    private class ColorChange {
+        private final Integer row;
+        private final String column;
+        private final ColoredValue.ColorType oldColor;
+        private final ColoredValue.ColorType newColor;
+        public ColorChange(Integer row, String column, ColoredValue.ColorType oldColor, ColoredValue.ColorType  newColor) {
+            this.row = row;
+            this.column = column;
+            this.oldColor = oldColor;
+            this.newColor = newColor;
+        }
+        public Integer getRow() {
+            return row;
+        }
+        public String getColumn() {
+            return column;
+        }
+        public ColoredValue.ColorType getOldColor() {
+            return oldColor;
+        }
+        public ColoredValue.ColorType getNewColor() {
+            return newColor;
+        }
     }
 
     /**
      * Updates buttons and menuitems related to undo/redo actions.
      */
-    private void updateUndoRedoUi() {
-        if (undoRedoPosition > undoRedoQueue.size()) {
-            undoRedoPosition = undoRedoQueue.size();
-        }
-        else if (undoRedoPosition < 0) {
-            undoRedoPosition = 0;
-        }
-        if (undoRedoQueue.isEmpty()) {
-            undoButton.setDisable(true);
-            redoButton.setDisable(true);
-            undoMenuItem.setDisable(true);
-            redoMenuItem.setDisable(true);
-        }
-        else {
-            boolean undoDisabled = (undoRedoPosition == 0);
-            boolean redoDisabled = ! (undoRedoQueue.size() >= undoRedoPosition);
-
-            undoButton.setDisable(undoDisabled);
-            redoButton.setDisable(redoDisabled);
-            undoMenuItem.setDisable(undoDisabled);
-            redoMenuItem.setDisable(redoDisabled);
-        }
+    private void updateUndoUi() {
+        undoButton.setDisable(undo.isEmpty());
+        undoMenuItem.setDisable(undo.isEmpty());
         // TODO Remove this!
-        System.out.println("Current items in undo/redo queue is " +
-                undoRedoQueue.size() + ". Current position is " +
-                undoRedoPosition + ".");
+        System.out.println("Current items in undo queue is " + undo.size() + ".");
     }
 }
