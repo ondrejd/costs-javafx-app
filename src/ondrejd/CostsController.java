@@ -171,14 +171,71 @@ public class CostsController implements Initializable {
             //switchMonth(action.getOriginalData().getMonth());
         }
         else if (action.getType().equals(UndoActions.UPDATE)) {
-            // ===========================================================================================================
-            // TODO Finish this!
-            // ===========================================================================================================
+            if (getSelectedMonthIndex() != action.getMonth()) {
+                switchMonth(action.getMonth());
+            }
+
+            // Update correct column
+            CostDataRow row = table.getItems().get(action.getOriginalRow());
+            boolean update = true;
+
             if (action.getColumn().equals(placeTCol.getId())) {
-                CostDataRow row = table.getItems().get(action.getOriginalRow());
-                System.out.println(row.getPlace().getValue());
-                row.setPlace((ColoredValue<String>) action.getValue());
-                //row.placeProperty().setValue((ColoredValue<String>) action.getValue());
+                ColoredValue<String> val = (ColoredValue<String>) action.getValue();
+                row.setPlace(val);
+            }
+            else if (action.getColumn().equals(surfaceTCol.getId())) {
+                ColoredValue<Integer> val = (ColoredValue<Integer>) action.getValue();
+                row.setSurface(val);
+                recalculateRowAfterSurface(row);
+            }
+            else if (action.getColumn().equals(workPriceTCol.getId())) {
+                ColoredValue<Integer> val = (ColoredValue<Integer>) action.getValue();
+                row.setWorkPrice(val);
+            }
+            else if (action.getColumn().equals(wireWeightTCol.getId())) {
+                ColoredValue<Integer> val = (ColoredValue<Integer>) action.getValue();
+                row.setWireWeight(val);
+                recalculateRowAfterWireWeight(row);
+            }
+            else if (action.getColumn().equals(wirePriceTCol.getId())) {
+                ColoredValue<Integer> val = (ColoredValue<Integer>) action.getValue();
+                row.setWirePrice(val);
+            }
+            else if (action.getColumn().equals(pourPriceTCol.getId())) {
+                ColoredValue<Integer> val = (ColoredValue<Integer>) action.getValue();
+                row.setPourPrice(val);
+            }
+            else if (action.getColumn().equals(paintPriceTCol.getId())) {
+                ColoredValue<Integer> val = (ColoredValue<Integer>) action.getValue();
+                row.setPaintPrice(val);
+            }
+            else if (action.getColumn().equals(sheetPriceTCol.getId())) {
+                ColoredValue<Integer> val = (ColoredValue<Integer>) action.getValue();
+                row.setSheetPrice(val);
+            }
+            else if (action.getColumn().equals(concretePriceTCol.getId())) {
+                ColoredValue<Integer> val = (ColoredValue<Integer>) action.getValue();
+                row.setConcretePrice(val);
+            }
+            else if (action.getColumn().equals(pumpPriceTCol.getId())) {
+                ColoredValue<Integer> val = (ColoredValue<Integer>) action.getValue();
+                row.setPumpPrice(val);
+            }
+            else if (action.getColumn().equals(squarePriceTCol.getId())) {
+                ColoredValue<Integer> val = (ColoredValue<Integer>) action.getValue();
+                row.setSquarePrice(val);
+            }
+            else if (action.getColumn().equals(billPriceTCol.getId())) {
+                ColoredValue<Integer> val = (ColoredValue<Integer>) action.getValue();
+                row.setBillPrice(val);
+            }
+            else {
+                update = false;
+            }
+
+            // Refresh table
+            if (update == true && !action.getColumn().equals(placeTCol.getId())) {
+                updateSumColumns(row);
                 table.refresh();
                 focusTable();
             }
@@ -513,14 +570,11 @@ public class CostsController implements Initializable {
      */
     private <T> TableCell<CostDataRow, ColoredValue<T>> createTableCell(String format, Function<String, T> supplier) {
         TextFieldTableCell<CostDataRow, ColoredValue<T>> cell = new TextFieldTableCell<>();
-
         cell.setConverter(new StringConverter<ColoredValue<T>>() {
-
             @Override
             public String toString(ColoredValue<T> item) {
                 return item == null ? "" : String.format(format, item.getValue());
             }
-
             @Override
             public ColoredValue<T> fromString(String string) {
                 String s = string.replace(" m2", "").replace(" Kč", "").
@@ -531,18 +585,17 @@ public class CostsController implements Initializable {
                         : cell.getItem().getColor();
                 return new ColoredValue<>(value, c);
             }
-
         });
 
         ChangeListener<ColoredValue.ColorType> valListener = (obs, oldState, newState) -> {
-            if (newState == null || newState == ColoredValue.ColorType.NOCOLOR) {
-                cell.setStyle("");
-            } else if (newState == ColoredValue.ColorType.YELLOW) {
+            if (newState == ColoredValue.ColorType.YELLOW) {
                 cell.setStyle("-fx-background-color: yellow ;");
             } else if (newState == ColoredValue.ColorType.RED) {
                 cell.setStyle("-fx-background-color: red ;");
             } else if (newState == ColoredValue.ColorType.GREEN) {
                 cell.setStyle("-fx-background-color: #cbe2ae ;");
+            } else {
+                cell.setStyle("");
             }
         };
         
@@ -553,14 +606,14 @@ public class CostsController implements Initializable {
             if (newItem == null) {
                 cell.setStyle("");
             } else {
-                if (newItem.getColor() == null || newItem.getColor() == ColoredValue.ColorType.NOCOLOR) {
-                    cell.setStyle("");
-                } else if (newItem.getColor() == ColoredValue.ColorType.YELLOW) {
+                if (newItem.getColor() == ColoredValue.ColorType.YELLOW) {
                     cell.setStyle("-fx-background-color: yellow ;");
                 } else if (newItem.getColor() == ColoredValue.ColorType.RED) {
                     cell.setStyle("-fx-background-color: red ;");
                 } else if (newItem.getColor() == ColoredValue.ColorType.GREEN) {
                     cell.setStyle("-fx-background-color: #cbe2ae ;");
+                } else {
+                    cell.setStyle("");
                 }
                 newItem.colorProperty().addListener(valListener);
             }
@@ -755,10 +808,10 @@ public class CostsController implements Initializable {
         // Set month which was selected when application was running last time
         int selMonth = prefs.getInt(SELECTED_MONTH, SELECTED_MONTH_DEFAULT);
         monthsComboBox.getSelectionModel().select(selMonth);
-        
+
         // Set up constants
         setConstants();
-        
+
         // Set up data table
         filteredData = new FilteredList<>(data, n -> {
             return (n.getMonth() == getSelectedMonthIndex());
@@ -775,14 +828,13 @@ public class CostsController implements Initializable {
             new EventHandler<CellEditEvent<CostDataRow, ColoredValue<String>>>() {
                 @Override
                 public void handle(CellEditEvent<CostDataRow, ColoredValue<String>> e) {
-                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(
-                            e.getTablePosition().getRow());
+                    ColoredValue<String> oldVal = e.getOldValue();
+                    int idx = e.getTablePosition().getRow();
+                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(idx);
                     row.setPlace(e.getNewValue());
-                    // Add undo action
-                    undo.add(new UndoAction(UndoActions.UPDATE, getSelectedMonthIndex(), e.getTablePosition().getRow(), placeTCol.getId(), e.getOldValue()));
-                    // Refresh table view
+                    // Undo, refresh, focus
+                    undo.add(new UndoAction(UndoActions.UPDATE, idx, placeTCol.getId(), oldVal));
                     e.getTableView().refresh();
-                    // Set focus on the table
                     focusTable();
                 }
             }
@@ -793,33 +845,16 @@ public class CostsController implements Initializable {
             new EventHandler<CellEditEvent<CostDataRow, ColoredValue<Integer>>>() {
                 @Override
                 public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
-                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(
-                            e.getTablePosition().getRow());
+                    ColoredValue<Integer> oldVal = e.getOldValue();
+                    int idx = e.getTablePosition().getRow();
+                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(idx);
                     row.setSurface(e.getNewValue());
-                    int s = e.getNewValue().getValue();
-                    // Calculate work price
-                    int price = (int)(s * getWorkPriceConstant());
-                    if (price < 12000) {
-                        price = 12000;
-                    }
-                    ColoredValue.ColorType wpc = row.workPriceProperty().get().getColor();
-                    row.setWorkPrice(new ColoredValue<>(price, wpc));
-                    // Calculate pour price
-                    ColoredValue.ColorType ppc = row.pourPriceProperty().get().getColor();
-                    row.setPourPrice(new ColoredValue<>((int)(s * getPourPriceConstant()), ppc));
-                    // Calculate paint price
-                    ColoredValue.ColorType papc = row.paintPriceProperty().get().getColor();
-                    row.setPaintPrice(new ColoredValue<>((int)(s * getPaintPriceConstant()), papc));
-                    // Calculate sheet price
-                    ColoredValue.ColorType spc = row.sheetPriceProperty().get().getColor();
-                    row.setSheetPrice(new ColoredValue<>((int)(s * getSheetPriceConstant()), spc));
-                    // Update total costs, gain, profitMargin.
+                    // Recalculate some values
+                    recalculateRowAfterSurface(row);
+                    // Update, undo, refresh, focus
                     updateSumColumns(row);
-                    // Add undo action
-                    undo.add(new UndoAction(UndoActions.UPDATE, getSelectedMonthIndex(), e.getTablePosition().getRow(), surfaceTCol.getId(), e.getOldValue()));
-                    // Refresh table view
+                    undo.add(new UndoAction(UndoActions.UPDATE, idx, surfaceTCol.getId(), oldVal));
                     e.getTableView().refresh();
-                    // Set focus on the table
                     focusTable();
                 }
             }
@@ -830,16 +865,14 @@ public class CostsController implements Initializable {
             new EventHandler<CellEditEvent<CostDataRow, ColoredValue<Integer>>>() {
                 @Override
                 public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
-                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(
-                            e.getTablePosition().getRow());
+                    ColoredValue<Integer> oldVal = e.getOldValue();
+                    int idx = e.getTablePosition().getRow();
+                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(idx);
                     row.setWorkPrice(e.getNewValue());
-                    // Update total costs, gain, profitMargin.
+                    // Update, undo, refresh, focus
                     updateSumColumns(row);
-                    // Add undo action
-                    undo.add(new UndoAction(UndoActions.UPDATE, getSelectedMonthIndex(), e.getTablePosition().getRow(), workPriceTCol.getId(), e.getOldValue()));
-                    // Refresh table view
+                    undo.add(new UndoAction(UndoActions.UPDATE, idx, workPriceTCol.getId(), oldVal));
                     e.getTableView().refresh();
-                    // Set focus on the table
                     focusTable();
                 }
             }
@@ -850,20 +883,15 @@ public class CostsController implements Initializable {
             new EventHandler<CellEditEvent<CostDataRow, ColoredValue<Integer>>>() {
                 @Override
                 public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
-                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(
-                            e.getTablePosition().getRow());
+                    ColoredValue<Integer> oldVal = e.getOldValue();
+                    int idx = e.getTablePosition().getRow();
+                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(idx);
                     row.setWireWeight(e.getNewValue());
-                    int weight = e.getNewValue().getValue();
-                    // Calculate wire price
-                    ColoredValue.ColorType wpc = row.wirePriceProperty().get().getColor();
-                    row.setWirePrice(new ColoredValue<>((int)(weight * getWirePriceConstant()), wpc));
-                    // Update total costs, gain, profitMargin.
+                    recalculateRowAfterWireWeight(row);
+                    // Update, undo, refresh, focus
                     updateSumColumns(row);
-                    // Add undo action
-                    undo.add(new UndoAction(UndoActions.UPDATE, getSelectedMonthIndex(), e.getTablePosition().getRow(), wireWeightTCol.getId(), e.getOldValue()));
-                    // Refresh table view
+                    undo.add(new UndoAction(UndoActions.UPDATE, idx, wireWeightTCol.getId(), oldVal));
                     e.getTableView().refresh();
-                    // Set focus on the table
                     focusTable();
                 }
             }
@@ -874,16 +902,14 @@ public class CostsController implements Initializable {
             new EventHandler<CellEditEvent<CostDataRow, ColoredValue<Integer>>>() {
                 @Override
                 public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
-                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(
-                            e.getTablePosition().getRow());
+                    ColoredValue<Integer> oldVal = e.getOldValue();
+                    int idx = e.getTablePosition().getRow();
+                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(idx);
                     row.setWirePrice(e.getNewValue());
-                    // Update total costs, gain, profitMargin.
+                    // Update, undo, refresh, focus
                     updateSumColumns(row);
-                    // Add undo action
-                    undo.add(new UndoAction(UndoActions.UPDATE, getSelectedMonthIndex(), e.getTablePosition().getRow(), wirePriceTCol.getId(), e.getOldValue()));
-                    // Refresh table view
+                    undo.add(new UndoAction(UndoActions.UPDATE, idx, wirePriceTCol.getId(), oldVal));
                     e.getTableView().refresh();
-                    // Set focus on the table
                     focusTable();
                 }
             }
@@ -894,16 +920,14 @@ public class CostsController implements Initializable {
             new EventHandler<CellEditEvent<CostDataRow, ColoredValue<Integer>>>() {
                 @Override
                 public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
-                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(
-                            e.getTablePosition().getRow());
+                    ColoredValue<Integer> oldVal = e.getOldValue();
+                    int idx = e.getTablePosition().getRow();
+                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(idx);
                     row.setPourPrice(e.getNewValue());
-                    // Update total costs, gain, profitMargin.
+                    // Update, undo, refresh, focus
                     updateSumColumns(row);
-                    // Add undo action
-                    undo.add(new UndoAction(UndoActions.UPDATE, getSelectedMonthIndex(), e.getTablePosition().getRow(), pourPriceTCol.getId(), e.getOldValue()));
-                    // Refresh table view
+                    undo.add(new UndoAction(UndoActions.UPDATE, idx, pourPriceTCol.getId(), oldVal));
                     e.getTableView().refresh();
-                    // Set focus on the table
                     focusTable();
                 }
             }
@@ -914,16 +938,14 @@ public class CostsController implements Initializable {
             new EventHandler<CellEditEvent<CostDataRow, ColoredValue<Integer>>>() {
                 @Override
                 public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
-                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(
-                            e.getTablePosition().getRow());
+                    ColoredValue<Integer> oldVal = e.getOldValue();
+                    int idx = e.getTablePosition().getRow();
+                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(idx);
                     row.setPaintPrice(e.getNewValue());
-                    // Update total costs, gain, profitMargin.
+                    // Update, undo, refresh, focus
                     updateSumColumns(row);
-                    // Add undo action
-                    undo.add(new UndoAction(UndoActions.UPDATE, getSelectedMonthIndex(), e.getTablePosition().getRow(), paintPriceTCol.getId(), e.getOldValue()));
-                    // Refresh table view
+                    undo.add(new UndoAction(UndoActions.UPDATE, idx, paintPriceTCol.getId(), oldVal));
                     e.getTableView().refresh();
-                    // Set focus on the table
                     focusTable();
                 }
             }
@@ -934,16 +956,14 @@ public class CostsController implements Initializable {
             new EventHandler<CellEditEvent<CostDataRow, ColoredValue<Integer>>>() {
                 @Override
                 public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
-                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(
-                            e.getTablePosition().getRow());
+                    ColoredValue<Integer> oldVal = e.getOldValue();
+                    int idx = e.getTablePosition().getRow();
+                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(idx);
                     row.setSheetPrice(e.getNewValue());
-                    // Update total costs, gain, profitMargin.
+                    // Update, undo, refresh, focus
                     updateSumColumns(row);
-                    // Add undo action
-                    undo.add(new UndoAction(UndoActions.UPDATE, getSelectedMonthIndex(), e.getTablePosition().getRow(), sheetPriceTCol.getId(), e.getOldValue()));
-                    // Refresh table view
+                    undo.add(new UndoAction(UndoActions.UPDATE, idx, sheetPriceTCol.getId(), oldVal));
                     e.getTableView().refresh();
-                    // Set focus on the table
                     focusTable();
                 }
             }
@@ -954,16 +974,14 @@ public class CostsController implements Initializable {
             new EventHandler<CellEditEvent<CostDataRow, ColoredValue<Integer>>>() {
                 @Override
                 public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
-                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(
-                            e.getTablePosition().getRow());
+                    ColoredValue<Integer> oldVal = e.getOldValue();
+                    int idx = e.getTablePosition().getRow();
+                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(idx);
                     row.setConcretePrice(e.getNewValue());
-                    // Update total costs, gain, profitMargin.
+                    // Update, undo, refresh, focus
                     updateSumColumns(row);
-                    // Add undo action
-                    undo.add(new UndoAction(UndoActions.UPDATE, getSelectedMonthIndex(), e.getTablePosition().getRow(), concretePriceTCol.getId(), e.getOldValue()));
-                    // Refresh table view
+                    undo.add(new UndoAction(UndoActions.UPDATE, idx, concretePriceTCol.getId(), oldVal));
                     e.getTableView().refresh();
-                    // Set focus on the table
                     focusTable();
                 }
             }
@@ -974,16 +992,14 @@ public class CostsController implements Initializable {
             new EventHandler<CellEditEvent<CostDataRow, ColoredValue<Integer>>>() {
                 @Override
                 public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
-                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(
-                            e.getTablePosition().getRow());
+                    ColoredValue<Integer> oldVal = e.getOldValue();
+                    int idx = e.getTablePosition().getRow();
+                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(idx);
                     row.setPumpPrice(e.getNewValue());
-                    // Update total costs, gain, profitMargin.
+                    // Update, undo, refresh, focus
                     updateSumColumns(row);
-                    // Add undo action
-                    undo.add(new UndoAction(UndoActions.UPDATE, getSelectedMonthIndex(), e.getTablePosition().getRow(), pumpPriceTCol.getId(), e.getOldValue()));
-                    // Refresh table view
+                    undo.add(new UndoAction(UndoActions.UPDATE, idx, pumpPriceTCol.getId(), oldVal));
                     e.getTableView().refresh();
-                    // Set focus on the table
                     focusTable();
                 }
             }
@@ -994,16 +1010,14 @@ public class CostsController implements Initializable {
             new EventHandler<CellEditEvent<CostDataRow, ColoredValue<Integer>>>() {
                 @Override
                 public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
-                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(
-                            e.getTablePosition().getRow());
+                    ColoredValue<Integer> oldVal = e.getOldValue();
+                    int idx = e.getTablePosition().getRow();
+                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(idx);
                     row.setSquarePrice(e.getNewValue());
-                    // Update total costs, gain, profitMargin.
+                    // Update, undo, refresh, focus
                     updateSumColumns(row);
-                    // Add undo action
-                    undo.add(new UndoAction(UndoActions.UPDATE, getSelectedMonthIndex(), e.getTablePosition().getRow(), squarePriceTCol.getId(), e.getOldValue()));
-                    // Refresh table view
+                    undo.add(new UndoAction(UndoActions.UPDATE, idx, squarePriceTCol.getId(), oldVal));
                     e.getTableView().refresh();
-                    // Set focus on the table
                     focusTable();
                 }
             }
@@ -1016,16 +1030,14 @@ public class CostsController implements Initializable {
             new EventHandler<CellEditEvent<CostDataRow, ColoredValue<Integer>>>() {
                 @Override
                 public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
-                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(
-                            e.getTablePosition().getRow());
+                    ColoredValue<Integer> oldVal = e.getOldValue();
+                    int idx = e.getTablePosition().getRow();
+                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(idx);
                     row.setBillPrice(e.getNewValue());
-                    // Update total costs, gain, profitMargin.
+                    // Update, undo, refresh, focus
                     updateSumColumns(row);
-                    // Add undo action
-                    undo.add(new UndoAction(UndoActions.UPDATE, getSelectedMonthIndex(), e.getTablePosition().getRow(), billPriceTCol.getId(), e.getOldValue()));
-                    // Refresh table view
+                    undo.add(new UndoAction(UndoActions.UPDATE, idx, billPriceTCol.getId(), oldVal));
                     e.getTableView().refresh();
-                    // Set focus on the table
                     focusTable();
                 }
             }
@@ -1285,12 +1297,12 @@ public class CostsController implements Initializable {
             this.column = null;
         }
 
-        public UndoAction(UndoActions type, int month, int row, String column, ColoredValue<?> value) {
+        public UndoAction(UndoActions type, int row, String column, ColoredValue<?> value) {
             if (!type.equals(UndoActions.UPDATE)) {
                 throw new IllegalArgumentException("Action type should be UPDATE!");
             }
             this.type = type;
-            this.month = month;
+            this.month = getSelectedMonthIndex();
             this.originalData = null;
             this.updatedData = null;
             this.originalRow = row;
@@ -1373,5 +1385,39 @@ public class CostsController implements Initializable {
         undoMenuItem.setDisable(undo.isEmpty());
         // TODO Remove this!
         System.out.println("Current items in undo queue is " + undo.size() + ".");
+    }
+
+    /**
+     * Recalculates values in row after value of surface column is set.
+     * @param row
+     */
+    private void recalculateRowAfterSurface(CostDataRow row) {
+        int surface = row.getSurface().getValue();
+        int price = (int)(surface * getWorkPriceConstant());
+        if (price < 12000 && surface > 0) {
+            price = 12000;
+        }
+        ColoredValue.ColorType wpc = row.workPriceProperty().get().getColor();
+        row.setWorkPrice(new ColoredValue<>(price, wpc));
+        // Calculate pour price
+        ColoredValue.ColorType ppc = row.pourPriceProperty().get().getColor();
+        row.setPourPrice(new ColoredValue<>((int)(surface * getPourPriceConstant()), ppc));
+        // Calculate paint price
+        ColoredValue.ColorType papc = row.paintPriceProperty().get().getColor();
+        row.setPaintPrice(new ColoredValue<>((int)(surface * getPaintPriceConstant()), papc));
+        // Calculate sheet price
+        ColoredValue.ColorType spc = row.sheetPriceProperty().get().getColor();
+        row.setSheetPrice(new ColoredValue<>((int)(surface * getSheetPriceConstant()), spc));
+    }
+
+    /**
+     * Recalculates values in row after value of wire weight column is set.
+     * @param row
+     */
+    private void recalculateRowAfterWireWeight(CostDataRow row) {
+        int weight = row.getWireWeight().getValue();
+        // Calculate wire price
+        ColoredValue.ColorType wpc = row.wirePriceProperty().get().getColor();
+        row.setWirePrice(new ColoredValue<>((int)(weight * getWirePriceConstant()), wpc));
     }
 }
