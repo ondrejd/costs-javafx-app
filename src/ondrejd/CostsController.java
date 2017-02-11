@@ -578,7 +578,11 @@ public class CostsController implements Initializable {
             @Override
             public ColoredValue<T> fromString(String string) {
                 String s = string.replace(" m2", "").replace(" Kč", "").
-                        replace(" Kg", "").replace(" %", "").replace(" ", "");
+                        replace(" Kg", "").replace(" %", "").replace(" ", "").
+                        replace(",", ".");
+                Float f = Float.parseFloat(s);
+                Integer i = f.intValue();
+                s = i.toString();
                 T value = supplier.apply("".equals(s) ? "0" : s);
                 ColoredValue.ColorType c = cell.getItem() == null 
                         ? ColoredValue.ColorType.NOCOLOR 
