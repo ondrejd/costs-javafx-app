@@ -156,7 +156,7 @@ public class CostsController implements Initializable {
     @FXML
     private void handleUndoAction(ActionEvent event) {
         if (undo.isEmpty()) {
-            System.out.println("There is no action that can be undone.");
+            // There is no action that can be undone.
             return;
         }
 
@@ -491,8 +491,8 @@ public class CostsController implements Initializable {
             prefs.putInt(SELECTED_MONTH, getSelectedMonthIndex());
             prefs.flush();
         } catch(BackingStoreException e) {
-            e.printStackTrace();
-            System.out.print("Exception occured when saving user preferences!");
+            //e.printStackTrace();
+            //System.out.print("Exception occured when saving user preferences!");
         }
     }
     
@@ -1387,8 +1387,6 @@ public class CostsController implements Initializable {
     private void updateUndoUi() {
         undoButton.setDisable(undo.isEmpty());
         undoMenuItem.setDisable(undo.isEmpty());
-        // TODO Remove this!
-        System.out.println("Current items in undo queue is " + undo.size() + ".");
     }
 
     /**
