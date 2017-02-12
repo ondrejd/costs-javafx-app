@@ -196,11 +196,11 @@ public class XmlDataSource {
             Element monthElm = (Element) monthNodes.item(i);
             // Month's number (starting from zero)
             int monthNum = Integer.parseInt(monthElm.getAttribute("num"));
-            double workCost = Double.parseDouble(monthElm.getAttribute("workCost"));
-            double wireCost = Double.parseDouble(monthElm.getAttribute("wireCost"));
-            double pourCost = Double.parseDouble(monthElm.getAttribute("pourCost"));
-            double paintCost = Double.parseDouble(monthElm.getAttribute("paintCost"));
-            double sheetCost = Double.parseDouble(monthElm.getAttribute("sheetCost"));
+            float workCost = Float.parseFloat(monthElm.getAttribute("workCost"));
+            float wireCost = Float.parseFloat(monthElm.getAttribute("wireCost"));
+            float pourCost = Float.parseFloat(monthElm.getAttribute("pourCost"));
+            float paintCost = Float.parseFloat(monthElm.getAttribute("paintCost"));
+            float sheetCost = Float.parseFloat(monthElm.getAttribute("sheetCost"));
             
             constants[monthNum] = new MonthConstants(workCost, wireCost, pourCost, paintCost, sheetCost);
             
@@ -258,11 +258,11 @@ public class XmlDataSource {
                 // Month number attributte
                 month.setAttribute("num", Integer.toString(i));
                 // Month attributes with constants
-                month.setAttribute("workCost", Double.toString(constants[i].getWorkPrice()));
-                month.setAttribute("wireCost", Double.toString(constants[i].getWirePrice()));
-                month.setAttribute("pourCost", Double.toString(constants[i].getPourPrice()));
-                month.setAttribute("paintCost", Double.toString(constants[i].getPaintPrice()));
-                month.setAttribute("sheetCost", Double.toString(constants[i].getSheetPrice()));
+                month.setAttribute("workCost", Float.toString(constants[i].getWorkPrice()));
+                month.setAttribute("wireCost", Float.toString(constants[i].getWirePrice()));
+                month.setAttribute("pourCost", Float.toString(constants[i].getPourPrice()));
+                month.setAttribute("paintCost", Float.toString(constants[i].getPaintPrice()));
+                month.setAttribute("sheetCost", Float.toString(constants[i].getSheetPrice()));
                 // Go through all rows
                 for(int x = 0; x < data.size(); x++) {
                     // TODO This is pretty time wasting!

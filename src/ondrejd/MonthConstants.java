@@ -7,14 +7,14 @@
 package ondrejd;
 
 public class MonthConstants {
-    private double workPrice;
-    private double wirePrice;
-    private double pourPrice;
-    private double paintPrice;
-    private double sheetPrice;
+    private float workPrice;
+    private float wirePrice;
+    private float pourPrice;
+    private float paintPrice;
+    private float sheetPrice;
     
-    public MonthConstants(double workPrice, double wirePrice, double pourPrice, 
-            double paintPrice, double sheetPrice) {
+    public MonthConstants(float workPrice, float wirePrice, float pourPrice, 
+            float paintPrice, float sheetPrice) {
         this.workPrice = workPrice;
         this.wirePrice = wirePrice;
         this.pourPrice = pourPrice;
@@ -22,43 +22,43 @@ public class MonthConstants {
         this.sheetPrice = sheetPrice;
     }
 
-    public double getWorkPrice() {
+    public float getWorkPrice() {
         return workPrice;
     }
 
-    public void setWorkPrice(double workPrice) {
+    public void setWorkPrice(float workPrice) {
         this.workPrice = workPrice;
     }
 
-    public double getWirePrice() {
+    public float getWirePrice() {
         return wirePrice;
     }
 
-    public void setWirePrice(double wirePrice) {
+    public void setWirePrice(float wirePrice) {
         this.wirePrice = wirePrice;
     }
 
-    public double getPourPrice() {
+    public float getPourPrice() {
         return pourPrice;
     }
 
-    public void setPourPrice(double pourPrice) {
+    public void setPourPrice(float pourPrice) {
         this.pourPrice = pourPrice;
     }
 
-    public double getPaintPrice() {
+    public float getPaintPrice() {
         return paintPrice;
     }
 
-    public void setPaintPrice(double paintPrice) {
+    public void setPaintPrice(float paintPrice) {
         this.paintPrice = paintPrice;
     }
 
-    public double getSheetPrice() {
+    public float getSheetPrice() {
         return sheetPrice;
     }
 
-    public void setSheetPrice(double sheetPrice) {
+    public void setSheetPrice(float sheetPrice) {
         this.sheetPrice = sheetPrice;
     }
 }

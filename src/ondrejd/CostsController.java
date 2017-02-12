@@ -529,36 +529,36 @@ public class CostsController implements Initializable {
     /**
      * @return Returns constant for calculating work price.
      */
-    private double getWorkPriceConstant() {
-        return Double.parseDouble(workPrice.getText());
+    private float getWorkPriceConstant() {
+        return Float.parseFloat(workPrice.getText());
     }
     
     /**
      * @return Returns constant for calculating wire price.
      */
-    private double getWirePriceConstant() {
-        return Double.parseDouble(wirePrice.getText());
+    private float getWirePriceConstant() {
+        return Float.parseFloat(wirePrice.getText());
     }
     
     /**
      * @return Returns constant for calculating pour price.
      */
-    private double getPourPriceConstant() {
-        return Double.parseDouble(pourPrice.getText());
+    private float getPourPriceConstant() {
+        return Float.parseFloat(pourPrice.getText());
     }
     
     /**
      * @return Returns constant for calculating paint price.
      */
-    private double getPaintPriceConstant() {
-        return Double.parseDouble(paintPrice.getText());
+    private float getPaintPriceConstant() {
+        return Float.parseFloat(paintPrice.getText());
     }
     
     /**
      * @return Returns constant for calculating sheet price.
      */
-    private double getSheetPriceConstant() {
-        return Double.parseDouble(sheetPrice.getText());
+    private float getSheetPriceConstant() {
+        return Float.parseFloat(sheetPrice.getText());
     }
 
     /**
@@ -578,11 +578,15 @@ public class CostsController implements Initializable {
             @Override
             public ColoredValue<T> fromString(String string) {
                 String s = string.replace(" m2", "").replace(" Kč", "").
-                        replace(" Kg", "").replace(" %", "").replace(" ", "").
-                        replace(",", ".");
-                Float f = Float.parseFloat(s);
-                Integer i = f.intValue();
-                s = i.toString();
+                        replace(" kč", "").replace(" Kg", "").replace(" kg", "").
+                        replace(" %", "").replace(" ", "").replace(",", ".").trim();
+                try {
+                    Float f = Float.parseFloat(s);
+                    Integer i = f.intValue();
+                    s = i.toString();
+                } catch (java.lang.NumberFormatException e) {
+                    s = s;
+                }
                 T value = supplier.apply("".equals(s) ? "0" : s);
                 ColoredValue.ColorType c = cell.getItem() == null 
                         ? ColoredValue.ColorType.NOCOLOR 
@@ -655,7 +659,7 @@ public class CostsController implements Initializable {
         if (tcv == 0 || g == 0) {
             row.setProfitMargin(new ColoredValue<>(0, ColoredValue.ColorType.GREEN));
         } else {
-            double pm = ((double) g / (double) bp) * 100;
+            float pm = ((float) g / (float) bp) * 100;
             row.setProfitMargin(new ColoredValue<>((int) pm, ColoredValue.ColorType.GREEN));
         }
         
@@ -669,11 +673,11 @@ public class CostsController implements Initializable {
     private void setConstants() {
         int month = getSelectedMonthIndex();
         MonthConstants constants = XmlDataSource.getConstants(month);
-        workPrice.setText(Double.toString(constants.getWorkPrice()));
-        wirePrice.setText(Double.toString(constants.getWirePrice()));
-        pourPrice.setText(Double.toString(constants.getPourPrice()));
-        paintPrice.setText(Double.toString(constants.getPaintPrice()));
-        sheetPrice.setText(Double.toString(constants.getSheetPrice()));
+        workPrice.setText(Float.toString(constants.getWorkPrice()));
+        wirePrice.setText(Float.toString(constants.getWirePrice()));
+        pourPrice.setText(Float.toString(constants.getPourPrice()));
+        paintPrice.setText(Float.toString(constants.getPaintPrice()));
+        sheetPrice.setText(Float.toString(constants.getSheetPrice()));
     }
     
     /**
@@ -682,11 +686,11 @@ public class CostsController implements Initializable {
     private void updateConstants() {
         int month = getSelectedMonthIndex();
         MonthConstants consts = XmlDataSource.getConstants(month);
-        consts.setWorkPrice(Double.parseDouble(workPrice.getText()));
-        consts.setWirePrice(Double.parseDouble(wirePrice.getText()));
-        consts.setPourPrice(Double.parseDouble(pourPrice.getText()));
-        consts.setPaintPrice(Double.parseDouble(paintPrice.getText()));
-        consts.setSheetPrice(Double.parseDouble(sheetPrice.getText()));
+        consts.setWorkPrice(Float.parseFloat(workPrice.getText()));
+        consts.setWirePrice(Float.parseFloat(wirePrice.getText()));
+        consts.setPourPrice(Float.parseFloat(pourPrice.getText()));
+        consts.setPaintPrice(Float.parseFloat(paintPrice.getText()));
+        consts.setSheetPrice(Float.parseFloat(sheetPrice.getText()));
         XmlDataSource.setConstants(month, consts);
     }
 
@@ -1060,8 +1064,8 @@ public class CostsController implements Initializable {
         workPrice.textProperty().addListener((obs, oldVal, newVal) -> {
             table.getItems().forEach(row -> {
                 int surface = row.getSurface().getValue();
-                double o = "".equals(oldVal) ? 0 : Double.parseDouble(oldVal);
-                double n = "".equals(newVal) ? 0 : Double.parseDouble(newVal);
+                float o = "".equals(oldVal) ? 0 : Float.parseFloat(oldVal);
+                float n = "".equals(newVal) ? 0 : Float.parseFloat(newVal);
                 
                 if ((int)(surface * o) == row.getWorkPrice().getValue()) {
                     ColoredValue.ColorType c = row.workPriceProperty().get().getColor();
@@ -1076,8 +1080,8 @@ public class CostsController implements Initializable {
         wirePrice.textProperty().addListener((obs, oldVal, newVal) -> {
             table.getItems().forEach(row -> {
                 int wireWeight = row.getWireWeight().getValue();
-                double o = "".equals(oldVal) ? 0 : Double.parseDouble(oldVal);
-                double n = "".equals(newVal) ? 0 : Double.parseDouble(newVal);
+                float o = "".equals(oldVal) ? 0 : Float.parseFloat(oldVal);
+                float n = "".equals(newVal) ? 0 : Float.parseFloat(newVal);
                 
                 if ((int)(wireWeight * o) == row.getWirePrice().getValue()) {
                     ColoredValue.ColorType c = row.wirePriceProperty().get().getColor();
@@ -1091,8 +1095,8 @@ public class CostsController implements Initializable {
         pourPrice.textProperty().addListener((obs, oldVal, newVal) -> {
             table.getItems().forEach(row -> {
                 int surface = row.getSurface().getValue();
-                double o = "".equals(oldVal) ? 0 : Double.parseDouble(oldVal);
-                double n = "".equals(newVal) ? 0 : Double.parseDouble(newVal);
+                float o = "".equals(oldVal) ? 0 : Float.parseFloat(oldVal);
+                float n = "".equals(newVal) ? 0 : Float.parseFloat(newVal);
                 
                 if ((int)(surface * o) == row.getPourPrice().getValue()) {
                     ColoredValue.ColorType c = row.pourPriceProperty().get().getColor();
@@ -1107,8 +1111,8 @@ public class CostsController implements Initializable {
         paintPrice.textProperty().addListener((obs, oldVal, newVal) -> {
             table.getItems().forEach(row -> {
                 int surface = row.getSurface().getValue();
-                double o = "".equals(oldVal) ? 0 : Double.parseDouble(oldVal);
-                double n = "".equals(newVal) ? 0 : Double.parseDouble(newVal);
+                float o = "".equals(oldVal) ? 0 : Float.parseFloat(oldVal);
+                float n = "".equals(newVal) ? 0 : Float.parseFloat(newVal);
                 
                 if ((int)(surface * o) == row.getPaintPrice().getValue()) {
                     ColoredValue.ColorType c = row.paintPriceProperty().get().getColor();
@@ -1123,8 +1127,8 @@ public class CostsController implements Initializable {
         sheetPrice.textProperty().addListener((obs, oldVal, newVal) -> {
             table.getItems().forEach(row -> {
                 int surface = row.getSurface().getValue();
-                double o = "".equals(oldVal) ? 0 : Double.parseDouble(oldVal);
-                double n = "".equals(newVal) ? 0 : Double.parseDouble(newVal);
+                float o = "".equals(oldVal) ? 0 : Float.parseFloat(oldVal);
+                float n = "".equals(newVal) ? 0 : Float.parseFloat(newVal);
                 
                 if ((int)(surface * o) == row.getSheetPrice().getValue()) {
                     ColoredValue.ColorType c = row.sheetPriceProperty().get().getColor();
