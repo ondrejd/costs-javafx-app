@@ -154,6 +154,7 @@ public class XmlDataSource {
             // Set color attributes
             row.setAttribute("placeColor", "N");
             row.setAttribute("surfaceColor", "N");
+            row.setAttribute("costsColor", "N");
             row.setAttribute("workPriceColor", "N");
             row.setAttribute("wireWeightColor", "N");
             row.setAttribute("wirePriceColor", "N");
@@ -324,8 +325,8 @@ public class XmlDataSource {
     }
 
     /**
-     * @param rowElm Element where we look for color attribute.
-     * @param attrName Base name of attribute.
+     * @param elm Element where we look for color attribute.
+     * @param attr Base name of attribute.
      * @return Returns color.
      */
     private static ColoredValue.ColorType getColorForAttr(Element elm, String attr) {
@@ -376,7 +377,7 @@ public class XmlDataSource {
             return;
         }
 
-        String backupFileName = "naklady-" + Integer.toString(year) + ".xml.bak";
+        String backupFileName = "naklady-" + year + ".xml.bak";
         File backupFile = new File(backupFileName);
 
         try {

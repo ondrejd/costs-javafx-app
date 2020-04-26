@@ -27,7 +27,7 @@ public class CostDataRow {
     private final ObjectProperty<ColoredValue<Integer>> gain = new SimpleObjectProperty<>();
     private final ObjectProperty<ColoredValue<Integer>> profitMargin = new SimpleObjectProperty<>();
     
-    public CostDataRow(int month, String place, int surface, int workPrice, 
+    public CostDataRow(int month, String place, int surface, int workPrice,
             int wireWeight, int wirePrice, int pourPrice, int paintPrice, 
             int sheetPrice, int concretePrice, int pumpPrice, int squarePrice, 
             int totalCosts, int billPrice, int gain, int profitMargin) {
@@ -77,6 +77,19 @@ public class CostDataRow {
     
     public final void setSurface(final ColoredValue<Integer> surface) {
         this.surfaceProperty().set(surface);
+    }
+
+    //costs
+    public final ObjectProperty<ColoredValue<Integer>> costsProperty() {
+        ObjectProperty<ColoredValue<Integer>> costs = new SimpleObjectProperty<>();
+        costs.setValue(getCosts());
+        return costs;
+    }
+
+    public final ColoredValue<Integer> getCosts() {
+        Integer bp = getBillPrice().getValue();
+        Integer val = (bp / 100) * 7;
+        return new ColoredValue<Integer>(val, ColoredValue.ColorType.NOCOLOR);
     }
     
     //workPrice

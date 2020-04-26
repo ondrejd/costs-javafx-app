@@ -3,11 +3,11 @@
     <output-path>$PROJECT_DIR$/out/artifacts/JavaFXApp</output-path>
     <properties id="javafx-properties">
       <options>
-        <option name="appClass" value="sample.Main" />
+        <option name="appClass" value="ondrejd.Costs" />
       </options>
     </properties>
     <root id="root">
-      <element id="archive" name="JavaFXApp.jar">
+      <element id="archive" name="CostsJavaFXApp.jar">
         <element id="module-output" name="costs-javafx-app" />
       </element>
     </root>

@@ -1,17 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.effect.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.text.*?>
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="1024.0" prefHeight="400.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ondrejd.CostsController">
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="1024.0" prefHeight="400.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ondrejd.CostsController">
    <children>
-      <ToolBar prefHeight="40.0" prefWidth="200.0">
+      <ToolBar prefHeight="27.0" prefWidth="1170.0">
          <items>
             <Button fx:id="undoButton" mnemonicParsing="false" onAction="#handleUndoAction">
                <tooltip>
@@ -56,6 +52,7 @@
         <columns>
             <TableColumn fx:id="placeTCol" prefWidth="-1.0" text="Místo" />
             <TableColumn fx:id="surfaceTCol" prefWidth="75.0" text="Plocha m2" />
+            <TableColumn fx:id="costsTCol" editable="false" prefWidth="75.0" text="Režie" />
             <TableColumn fx:id="workPriceTCol" prefWidth="75.0" text="Práce" />
             <TableColumn fx:id="wireWeightTCol" prefWidth="75.0" text="Drátky (hmotnost)" />
             <TableColumn fx:id="wirePriceTCol" prefWidth="75.0" text="Drátky (cena)" />

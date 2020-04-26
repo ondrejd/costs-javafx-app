@@ -6,12 +6,6 @@
 
 package ondrejd;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Optional;
-import java.util.ResourceBundle;
-import java.util.function.Function;
-import java.util.prefs.*;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
@@ -23,27 +17,27 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
+import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.TableColumn.CellEditEvent;
-import javafx.scene.control.TablePosition;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TableView;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.util.StringConverter;
 
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.function.Function;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
+
 public class CostsController implements Initializable {
+
     public enum UndoActions { INSERT, REMOVE, UPDATE, COLOR, COPY, MOVE, MOVEDOWN, MOVEUP };
 
     private static final String SELECTED_MONTH = "selected_month";
@@ -81,6 +75,8 @@ public class CostsController implements Initializable {
     private TableColumn<CostDataRow, ColoredValue<String>> placeTCol;
     @FXML
     private TableColumn<CostDataRow, ColoredValue<Integer>> surfaceTCol;
+    @FXML
+    private TableColumn<CostDataRow, ColoredValue<Integer>> costsTCol;
     @FXML
     private TableColumn<CostDataRow, ColoredValue<Integer>> workPriceTCol;
     @FXML
@@ -144,8 +140,8 @@ public class CostsController implements Initializable {
      * @param second Index of the second row to swap (in table view)
      */
     private void swapDataRows(Integer first, Integer second) {
-        CostDataRow firstRow = (CostDataRow) table.getItems().get(first);
-        CostDataRow secondRow = (CostDataRow) table.getItems().get(second);
+        CostDataRow firstRow = table.getItems().get(first);
+        CostDataRow secondRow = table.getItems().get(second);
 
         int firstIndex = data.indexOf(firstRow);
         int secondIndex = data.indexOf(secondRow);
@@ -234,7 +230,7 @@ public class CostsController implements Initializable {
             }
 
             // Refresh table
-            if (update == true && !action.getColumn().equals(placeTCol.getId())) {
+            if (update && !action.getColumn().equals(placeTCol.getId())) {
                 updateSumColumns(row);
                 table.refresh();
                 focusTable();
@@ -248,6 +244,8 @@ public class CostsController implements Initializable {
                     row.getPlace().setColor(change.getOldColor());
                 } else if (change.getColumn().equals(surfaceTCol.getId())) {
                     row.getSurface().setColor(change.getOldColor());
+                } else if (change.getColumn().equals(costsTCol.getId())) {
+                    row.getCosts().setColor(change.getOldColor());
                 } else if (change.getColumn().equals(workPriceTCol.getId())) {
                     row.getWorkPrice().setColor(change.getOldColor());
                 } else if (change.getColumn().equals(wireWeightTCol.getId())) {
@@ -325,7 +323,6 @@ public class CostsController implements Initializable {
     @FXML
     private void handleMoveRowDownAction(ActionEvent event) {
         int idx = table.getSelectionModel().getSelectedIndex();
-        int month = table.getItems().get(idx).getMonth();
         if (idx < table.getItems().size() - 1) {
             swapDataRows(idx, idx + 1);
         }
@@ -356,6 +353,9 @@ public class CostsController implements Initializable {
             } else if (pos.getTableColumn() == surfaceTCol) {
                 oldColor = row.getSurface().getColor();
                 row.getSurface().setColor(newColor);
+            } else if (pos.getTableColumn() == costsTCol) {
+                oldColor = row.getCosts().getColor();
+                row.getCosts().setColor(newColor);
             } else if (pos.getTableColumn() == workPriceTCol) {
                 oldColor = row.getWorkPrice().getColor();
                 row.getWorkPrice().setColor(newColor);
@@ -418,6 +418,9 @@ public class CostsController implements Initializable {
             } else if (pos.getTableColumn() == surfaceTCol) {
                 oldColor = row.getSurface().getColor();
                 row.getSurface().setColor(newColor);
+            } else if (pos.getTableColumn() == costsTCol) {
+                oldColor = row.getCosts().getColor();
+                row.getCosts().setColor(newColor);
             } else if (pos.getTableColumn() == workPriceTCol) {
                 oldColor = row.getWorkPrice().getColor();
                 row.getWorkPrice().setColor(newColor);
@@ -581,9 +584,9 @@ public class CostsController implements Initializable {
                         replace(" kč", "").replace(" Kg", "").replace(" kg", "").
                         replace(" %", "").replace(" ", "").replace(",", ".").trim();
                 try {
-                    Float f = Float.parseFloat(s);
-                    Integer i = f.intValue();
-                    s = i.toString();
+                    float f = Float.parseFloat(s);
+                    int i = (int) f;
+                    s = Integer.toString(i);
                 } catch (java.lang.NumberFormatException e) {
                     s = s;
                 }
@@ -713,13 +716,13 @@ public class CostsController implements Initializable {
         // 2) Remove selected row
         int idx = table.getSelectionModel().getSelectedIndex();
         CostDataRow oldRow = (CostDataRow) table.getItems().get(idx);
-        if(deleteOriginalRow == true) {
+        if(deleteOriginalRow) {
             data.remove(oldRow);
         }
         // 3) Insert row into target month
         CostDataRow newRow = new CostDataRow(monthIdx, 
                 oldRow.getPlace().getValue(), 
-                oldRow.getSurface().getValue(), 
+                oldRow.getSurface().getValue(),
                 oldRow.getWorkPrice().getValue(),
                 oldRow.getWireWeight().getValue(),
                 oldRow.getWirePrice().getValue(),
@@ -737,7 +740,7 @@ public class CostsController implements Initializable {
         // 4) Switch to target month
         monthsComboBox.getSelectionModel().clearAndSelect(monthIdx);
         // 5) Add action to undo queue
-        if (deleteOriginalRow != true) {
+        if (!deleteOriginalRow) {
             undo.add(new UndoAction(UndoActions.COPY, newRow));
         } else {
             undo.add(new UndoAction(UndoActions.MOVE, oldRow, newRow));
@@ -838,7 +841,7 @@ public class CostsController implements Initializable {
                 public void handle(CellEditEvent<CostDataRow, ColoredValue<String>> e) {
                     ColoredValue<String> oldVal = e.getOldValue();
                     int idx = e.getTablePosition().getRow();
-                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(idx);
+                    CostDataRow row = e.getTableView().getItems().get(idx);
                     row.setPlace(e.getNewValue());
                     // Undo, refresh, focus
                     undo.add(new UndoAction(UndoActions.UPDATE, idx, placeTCol.getId(), oldVal));
@@ -867,6 +870,10 @@ public class CostsController implements Initializable {
                 }
             }
         );
+
+        costsTCol.setCellValueFactory(cellData -> cellData.getValue().costsProperty());
+        costsTCol.setCellFactory(tc -> createTableCell("%,d Kč", Integer::new));
+
         workPriceTCol.setCellValueFactory(cellData -> cellData.getValue().workPriceProperty());
         workPriceTCol.setCellFactory(tc -> createTableCell("%,d Kč", Integer::new));
         workPriceTCol.setOnEditCommit(
@@ -875,7 +882,7 @@ public class CostsController implements Initializable {
                 public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
                     ColoredValue<Integer> oldVal = e.getOldValue();
                     int idx = e.getTablePosition().getRow();
-                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(idx);
+                    CostDataRow row = e.getTableView().getItems().get(idx);
                     row.setWorkPrice(e.getNewValue());
                     // Update, undo, refresh, focus
                     updateSumColumns(row);
@@ -893,7 +900,7 @@ public class CostsController implements Initializable {
                 public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
                     ColoredValue<Integer> oldVal = e.getOldValue();
                     int idx = e.getTablePosition().getRow();
-                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(idx);
+                    CostDataRow row = e.getTableView().getItems().get(idx);
                     row.setWireWeight(e.getNewValue());
                     recalculateRowAfterWireWeight(row);
                     // Update, undo, refresh, focus
@@ -912,7 +919,7 @@ public class CostsController implements Initializable {
                 public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
                     ColoredValue<Integer> oldVal = e.getOldValue();
                     int idx = e.getTablePosition().getRow();
-                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(idx);
+                    CostDataRow row = e.getTableView().getItems().get(idx);
                     row.setWirePrice(e.getNewValue());
                     // Update, undo, refresh, focus
                     updateSumColumns(row);
@@ -930,7 +937,7 @@ public class CostsController implements Initializable {
                 public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
                     ColoredValue<Integer> oldVal = e.getOldValue();
                     int idx = e.getTablePosition().getRow();
-                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(idx);
+                    CostDataRow row = e.getTableView().getItems().get(idx);
                     row.setPourPrice(e.getNewValue());
                     // Update, undo, refresh, focus
                     updateSumColumns(row);
@@ -948,7 +955,7 @@ public class CostsController implements Initializable {
                 public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
                     ColoredValue<Integer> oldVal = e.getOldValue();
                     int idx = e.getTablePosition().getRow();
-                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(idx);
+                    CostDataRow row = e.getTableView().getItems().get(idx);
                     row.setPaintPrice(e.getNewValue());
                     // Update, undo, refresh, focus
                     updateSumColumns(row);
@@ -966,7 +973,7 @@ public class CostsController implements Initializable {
                 public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
                     ColoredValue<Integer> oldVal = e.getOldValue();
                     int idx = e.getTablePosition().getRow();
-                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(idx);
+                    CostDataRow row = e.getTableView().getItems().get(idx);
                     row.setSheetPrice(e.getNewValue());
                     // Update, undo, refresh, focus
                     updateSumColumns(row);
@@ -984,7 +991,7 @@ public class CostsController implements Initializable {
                 public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
                     ColoredValue<Integer> oldVal = e.getOldValue();
                     int idx = e.getTablePosition().getRow();
-                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(idx);
+                    CostDataRow row = e.getTableView().getItems().get(idx);
                     row.setConcretePrice(e.getNewValue());
                     // Update, undo, refresh, focus
                     updateSumColumns(row);
@@ -1002,7 +1009,7 @@ public class CostsController implements Initializable {
                 public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
                     ColoredValue<Integer> oldVal = e.getOldValue();
                     int idx = e.getTablePosition().getRow();
-                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(idx);
+                    CostDataRow row = e.getTableView().getItems().get(idx);
                     row.setPumpPrice(e.getNewValue());
                     // Update, undo, refresh, focus
                     updateSumColumns(row);
@@ -1020,7 +1027,7 @@ public class CostsController implements Initializable {
                 public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
                     ColoredValue<Integer> oldVal = e.getOldValue();
                     int idx = e.getTablePosition().getRow();
-                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(idx);
+                    CostDataRow row = e.getTableView().getItems().get(idx);
                     row.setSquarePrice(e.getNewValue());
                     // Update, undo, refresh, focus
                     updateSumColumns(row);
@@ -1040,7 +1047,7 @@ public class CostsController implements Initializable {
                 public void handle(CellEditEvent<CostDataRow, ColoredValue<Integer>> e) {
                     ColoredValue<Integer> oldVal = e.getOldValue();
                     int idx = e.getTablePosition().getRow();
-                    CostDataRow row = (CostDataRow) e.getTableView().getItems().get(idx);
+                    CostDataRow row = e.getTableView().getItems().get(idx);
                     row.setBillPrice(e.getNewValue());
                     // Update, undo, refresh, focus
                     updateSumColumns(row);
