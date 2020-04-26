@@ -582,9 +582,7 @@ public class CostsController implements Initializable {
     /**
      * @return Returns constant for calculating wire price.
      */
-    private float getWirePriceConstant() {
-        return Float.parseFloat(wirePrice.getText());
-    }
+    private float getWirePriceConstant() { return Float.parseFloat(wirePrice.getText()); }
     
     /**
      * @return Returns constant for calculating pour price.
@@ -1120,13 +1118,10 @@ public class CostsController implements Initializable {
                 int surface = row.getSurface().getValue();
                 float o = "".equals(oldVal) ? 0 : Float.parseFloat(oldVal);
                 float n = "".equals(newVal) ? 0 : Float.parseFloat(newVal);
-                
-                if ((int)(surface * o) == row.getWorkPrice().getValue()) {
-                    ColoredValue.ColorType c = row.workPriceProperty().get().getColor();
-                    row.setWorkPrice(new ColoredValue<>((int)(surface * n), c));
-                    updateSumColumns(row);
-                }
-                
+
+                ColoredValue.ColorType c = row.workPriceProperty().get().getColor();
+                row.setWorkPrice(new ColoredValue<>((int)(surface * n), c));
+                updateSumColumns(row);
                 updateConstants();
                 focusTable();
             });
@@ -1136,12 +1131,9 @@ public class CostsController implements Initializable {
                 int wireWeight = row.getWireWeight().getValue();
                 float o = "".equals(oldVal) ? 0 : Float.parseFloat(oldVal);
                 float n = "".equals(newVal) ? 0 : Float.parseFloat(newVal);
-                
-                if ((int)(wireWeight * o) == row.getWirePrice().getValue()) {
-                    ColoredValue.ColorType c = row.wirePriceProperty().get().getColor();
-                    row.setWirePrice(new ColoredValue<>((int)(wireWeight * n), c));
-                }
-                
+
+                ColoredValue.ColorType c = row.wirePriceProperty().get().getColor();
+                row.setWirePrice(new ColoredValue<>((int)(wireWeight * n), c));
                 updateConstants();
                 focusTable();
             });
@@ -1151,13 +1143,10 @@ public class CostsController implements Initializable {
                 int surface = row.getSurface().getValue();
                 float o = "".equals(oldVal) ? 0 : Float.parseFloat(oldVal);
                 float n = "".equals(newVal) ? 0 : Float.parseFloat(newVal);
-                
-                if ((int)(surface * o) == row.getPourPrice().getValue()) {
-                    ColoredValue.ColorType c = row.pourPriceProperty().get().getColor();
-                    row.setPourPrice(new ColoredValue<>((int)(surface * n), c));
-                    updateSumColumns(row);
-                }
-                
+
+                ColoredValue.ColorType c = row.pourPriceProperty().get().getColor();
+                row.setPourPrice(new ColoredValue<>((int)(surface * n), c));
+                updateSumColumns(row);
                 updateConstants();
                 focusTable();
             });
@@ -1167,13 +1156,10 @@ public class CostsController implements Initializable {
                 int surface = row.getSurface().getValue();
                 float o = "".equals(oldVal) ? 0 : Float.parseFloat(oldVal);
                 float n = "".equals(newVal) ? 0 : Float.parseFloat(newVal);
-                
-                if ((int)(surface * o) == row.getPaintPrice().getValue()) {
-                    ColoredValue.ColorType c = row.paintPriceProperty().get().getColor();
-                    row.setPaintPrice(new ColoredValue<>((int)(surface * n), c));
-                    updateSumColumns(row);
-                }
-                
+
+                ColoredValue.ColorType c = row.paintPriceProperty().get().getColor();
+                row.setPaintPrice(new ColoredValue<>((int)(surface * n), c));
+                updateSumColumns(row);
                 updateConstants();
                 focusTable();
             });
@@ -1183,13 +1169,10 @@ public class CostsController implements Initializable {
                 int surface = row.getSurface().getValue();
                 float o = "".equals(oldVal) ? 0 : Float.parseFloat(oldVal);
                 float n = "".equals(newVal) ? 0 : Float.parseFloat(newVal);
-                
-                if ((int)(surface * o) == row.getSheetPrice().getValue()) {
-                    ColoredValue.ColorType c = row.sheetPriceProperty().get().getColor();
-                    row.setSheetPrice(new ColoredValue<>((int)(surface * n), c));
-                    updateSumColumns(row);
-                }
-                
+
+                ColoredValue.ColorType c = row.sheetPriceProperty().get().getColor();
+                row.setSheetPrice(new ColoredValue<>((int)(surface * n), c));
+                updateSumColumns(row);
                 updateConstants();
                 focusTable();
             });
