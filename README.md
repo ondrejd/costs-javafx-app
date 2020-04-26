@@ -1,10 +1,10 @@
 # Costs
 
-Simple [JavaFX](https://www.java.com/) application for calculating costs for one building company (used version of Java is __8__). As a storage is used simple XML file.
+Simple [JavaFX](https://www.java.com/) application for calculating costs for one building company (used version of Java is __11__). As a storage is used simple XML file.
 
 ## Building
 
-Use [NetBeans IDE](http://netbeans.org/) to build this application.
+Use [IntelliJ IDEA Community Edition](https://www.jetbrains.com/idea/) to build this application.
 
 ## Running
 
