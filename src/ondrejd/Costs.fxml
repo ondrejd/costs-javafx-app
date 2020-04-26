@@ -46,6 +46,11 @@
                   <Tooltip text="Obarvit vybrané buňky červeně" />
                </tooltip>
             </Button>
+             <Button fx:id="keyButton" mnemonicParsing="false" onAction="#handleKeyButtonAction" text="">
+                 <tooltip>
+                     <Tooltip text="Zobrazit skryté sloupce" />
+                 </tooltip>
+             </Button>
          </items>
       </ToolBar>
       <TableView fx:id="table" prefHeight="361.0" prefWidth="653.0" style=".table-row-cell: 50px;" tableMenuButtonVisible="false" VBox.vgrow="ALWAYS">

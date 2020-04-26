@@ -40,12 +40,20 @@ public class CostsController implements Initializable {
 
     public enum UndoActions { INSERT, REMOVE, UPDATE, COLOR, COPY, MOVE, MOVEDOWN, MOVEUP };
 
+    //private static final String DEFAULT_KEY_PASSWD = "6f570f66000c96679ee69f2373bd944147781717b93f363322372d0f0cc6f574"; //sha256
+    private static final String DEFAULT_KEY_PASSWD = "awef67nm";
+
     private static final String SELECTED_MONTH = "selected_month";
     private static final Integer SELECTED_MONTH_DEFAULT = 0;
 
     private ObservableList<CostDataRow> data;
     private FilteredList<CostDataRow> filteredData;
     private Preferences prefs;
+
+    /**
+     * Shows if hidden columns are showed or not.
+     */
+    private boolean isKeyUsed = false;
     
     @FXML
     private ComboBox monthsComboBox;
@@ -69,6 +77,8 @@ public class CostsController implements Initializable {
     private Button yellowButton;
     @FXML
     private Button redButton;
+    @FXML
+    private Button keyButton;
     @FXML
     private TableView<CostDataRow> table;
     @FXML
@@ -472,6 +482,39 @@ public class CostsController implements Initializable {
         switchMonth(getSelectedMonthIndex());
     }
 
+    @FXML
+    private void handleKeyButtonAction(ActionEvent event) {
+        // Zobrazit/skrýt ty správné sloupečky
+        if (!isKeyUsed) {
+            // Zažádat o heslo a případně zobrazit sloupečky a `isKeyUsed` dát TRUE
+
+            TextInputDialog dialog = new TextInputDialog("");
+            dialog.setTitle("Zobrazení skrytých sloupců");
+            dialog.setHeaderText("Zadejte heslo pro zobrazení skrytých sloupců.");
+            dialog.setContentText("Vložte heslo:");
+
+            Optional<String> result = dialog.showAndWait();
+            result.ifPresent(pass -> {
+                if (DEFAULT_KEY_PASSWD.equals(pass)) {
+                    gainTCol.setVisible(true);
+                    profitMarginTCol.setVisible(true);
+                    isKeyUsed = true;
+                } else {
+                    Alert alert = new Alert(AlertType.INFORMATION);
+                    alert.setTitle("Zobrazení skrytých sloupců");
+                    alert.setHeaderText("Varování!");
+                    alert.setContentText("Zadané heslo neodpovídá požadovanému heslu!");
+                    alert.showAndWait();
+                }
+            });
+        } else {
+            // Skrýt sloupečky a `isKeyUsed` dát FALSE
+            gainTCol.setVisible(false);
+            profitMarginTCol.setVisible(false);
+            isKeyUsed = false;
+        }
+    }
+
     /**
      * Switch view to given month.
      * @param month Month index (starting from 0).
@@ -791,11 +834,13 @@ public class CostsController implements Initializable {
         Image iconDelRow = new Image("resources/graphics/table_row_delete.png");
         Image iconRed    = new Image("resources/graphics/tag_red.png");
         Image iconYellow = new Image("resources/graphics/tag_yellow.png");
+        Image iconKey    = new Image("resources/graphics/key.png");
         undoButton.setGraphic(new ImageView(iconUndo));
         addRowButton.setGraphic(new ImageView(iconAddRow));
         delRowButton.setGraphic(new ImageView(iconDelRow));
         redButton.setGraphic(new ImageView(iconRed));
         yellowButton.setGraphic(new ImageView(iconYellow));
+        keyButton.setGraphic(new ImageView(iconKey));
 
         // Set up popup menuitems icons
         undoMenuItem.setGraphic(new ImageView(iconUndo));
@@ -1059,8 +1104,10 @@ public class CostsController implements Initializable {
         );
         gainTCol.setCellValueFactory(cellData -> cellData.getValue().gainProperty());
         gainTCol.setCellFactory(tc -> createTableCell("%,d Kč", Integer::new));
+        gainTCol.setVisible(false);
         profitMarginTCol.setCellValueFactory(cellData -> cellData.getValue().profitMarginProperty());
         profitMarginTCol.setCellFactory(tc -> createTableCell("%,d %%", Integer::new));
+        profitMarginTCol.setVisible(false);
         
         // Set up disabled state on color buttons
         yellowButton.disableProperty().bind(Bindings.isEmpty(table.getSelectionModel().getSelectedCells()));
