@@ -26,7 +26,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 public class XmlDataSource {
-    public static final String DEFAULT_WORK_PRICE = "80.0";
+    public static final String DEFAULT_WORK_PRICE = "100.0";
     public static final String DEFAULT_WIRE_PRICE = "20.0";
     public static final String DEFAULT_POUR_PRICE = "6.0";
     public static final String DEFAULT_PAINT_PRICE = "9.0";

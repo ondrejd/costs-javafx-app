@@ -27,15 +27,15 @@
                </tooltip>
             </Button>
             <Label text="Práce" />
-            <TextField fx:id="workPrice" prefHeight="25.0" prefWidth="50.0" text="" />
+            <TextField fx:id="workPrice" alignment="BASELINE_RIGHT" prefHeight="25.0" prefWidth="65.0" text="" />
             <Label text="Drátky" />
-            <TextField fx:id="wirePrice" prefHeight="25.0" prefWidth="50.0" text="" />
+            <TextField fx:id="wirePrice" alignment="BASELINE_RIGHT" prefHeight="25.0" prefWidth="55.0" text="" />
             <Label text="Vsyp" />
-            <TextField fx:id="pourPrice" prefHeight="25.0" prefWidth="50.0" text="" />
+            <TextField fx:id="pourPrice" alignment="BASELINE_RIGHT" prefHeight="25.0" prefWidth="55.0" text="" />
             <Label text="Lak" />
-            <TextField fx:id="paintPrice" prefHeight="25.0" prefWidth="50.0" text="" />
+            <TextField fx:id="paintPrice" alignment="BASELINE_RIGHT" prefHeight="25.0" prefWidth="55.0" text="" />
             <Label text="Fólie" />
-            <TextField fx:id="sheetPrice" prefHeight="25.0" prefWidth="50.0" text="" />
+            <TextField fx:id="sheetPrice" alignment="BASELINE_RIGHT" prefHeight="25.0" prefWidth="55.0" text=""/>
             <Button fx:id="yellowButton" mnemonicParsing="false" onAction="#handleYellowButtonAction" text="">
                <tooltip>
                   <Tooltip text="Obarvit vybrané buňky žlutě" />

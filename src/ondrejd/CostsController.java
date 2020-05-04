@@ -40,8 +40,9 @@ public class CostsController implements Initializable {
 
     public enum UndoActions { INSERT, REMOVE, UPDATE, COLOR, COPY, MOVE, MOVEDOWN, MOVEUP };
 
-    //private static final String DEFAULT_KEY_PASSWD = "6f570f66000c96679ee69f2373bd944147781717b93f363322372d0f0cc6f574"; //sha256
-    private static final String DEFAULT_KEY_PASSWD = "awef67nm";
+    // TODO Use "hard-typed" password but with sha256 hash
+    //private static final String DEFAULT_KEY_PASSWD = "94e506fe8208862bf8e34727e5c536c1f09c73a4f2ec41a43b7d9a9a4415af31";
+    private static final String DEFAULT_KEY_PASSWD = "pravo";
 
     private static final String SELECTED_MONTH = "selected_month";
     private static final Integer SELECTED_MONTH_DEFAULT = 0;
@@ -712,7 +713,7 @@ public class CostsController implements Initializable {
     }
     
     /**
-     * Set text fields for price constants from data storred in {@link ondrejd.XmlDataSource}.
+     * Set text fields for price constants from data stored in {@link ondrejd.XmlDataSource}.
      */
     private void setConstants() {
         int month = getSelectedMonthIndex();
@@ -1123,7 +1124,7 @@ public class CostsController implements Initializable {
                 row.setWorkPrice(new ColoredValue<>((int)(surface * n), c));
                 updateSumColumns(row);
                 updateConstants();
-                focusTable();
+                //focusTable();
             });
         });
         wirePrice.textProperty().addListener((obs, oldVal, newVal) -> {
